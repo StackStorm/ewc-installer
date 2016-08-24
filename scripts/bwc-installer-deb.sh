@@ -9,8 +9,7 @@ REPO_PREFIX=''
 USERNAME=''
 PASSWORD=''
 LICENSE_KEY=''
-
-SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer/scripts/setup/"
+SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer/scripts/setup"
 
 NO_LICENSE_BANNER="
 LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
@@ -23,7 +22,7 @@ Please contact sales@brocade.com if you have any questions.
 BWC_ENTERPRISE_VERSION=''
 IPFABRIC_SUITE_VERSION=''
 
-REPO_NAME='enteprise'
+REPO_NAME='enterprise'
 
 fail() {
   echo "############### ERROR ###############"
@@ -70,6 +69,8 @@ setup_args() {
       esac
     done
 
+  hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
+
   if [ -z ${LICENSE_KEY} ]; then
     printf "${NO_LICENSE_BANNER}"
     exit 1
@@ -114,7 +115,16 @@ setup_args() {
 }
 
 setup_package_cloud_repo() {
-  curl -s https://${LICENSE_KEY:}packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.deb.sh | sudo bash
+  local PKG_CLOUD_URL=https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.deb.sh
+  ERROR_MSG="
+    No access to enteprise repo ${PKG_CLOUD_URL}.
+
+    LICENSE: ${LICENSE_KEY} not valid.
+
+    Please contact support@Brocade.com. Please include the SKU and the invalid license key in the email.
+  "
+  curl --output /dev/null --silent --fail ${PKG_CLOUD_URL} || (printf "${ERROR_MSG}\n\n" && exit 1)
+  curl -s ${PKG_CLOUD_URL} | sudo bash
 }
 
 get_full_pkg_versions() {
@@ -156,23 +166,24 @@ install_ipfabric_automation_suite() {
 setup_ipfabric_automation_suite() {
   local IPFABRIC_SETUP_SCRIPT="${SETUP_SCRIPTS_BASE_PATH}/bwc-ipfabric-suite-setup.sh"
   local IPFABRIC_SETUP_FILE="bwc-ipfabric-suite-setup.sh"
-  CURLTEST=`curl --output /dev/null --silent --head --fail ${IPFABRIC_SETUP_SCRIPT}`
-  if [ $? -ne 0 ]; then
-    echo -e "Could not find file ${BWC_OS_INSTALLER}"
-    exit 2
-  else
-    echo "Downloading ipfabric setup script from: ${IPFABRIC_SETUP_SCRIPT}"
-    curl -Ss -o ${IPFABRIC_SETUP_FILE} ${IPFABRIC_SETUP_SCRIPT}
-    chmod +x ${IPFABRIC_SETUP_FILE}
+  ERROR_MSG="
+    Cannot find ipfabric setup script ${IPFABRIC_SETUP_SCRIPT}.
 
-    echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-    echo "Generating DB password for bwc-topology postgres database"
-    local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-    echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+    Installation will abort now. Please contact support@Brocade.com with this error.
+    Please include SKU and the error message in the email.
+  "
+  curl --output /dev/null --silent --head --fail ${IPFABRIC_SETUP_SCRIPT} || (printf "\n\n${ERROR_MSG}\n\n" && exit 1)
+  echo "Downloading ipfabric setup script from: ${IPFABRIC_SETUP_SCRIPT}"
+  curl -Ss -o ${IPFABRIC_SETUP_FILE} ${IPFABRIC_SETUP_SCRIPT}
+  chmod +x ${IPFABRIC_SETUP_FILE}
 
-    local ST2_AUTH_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
-    ST2_AUTH_TOKEN=${ST2_AUTH_TOKEN} bash -c "${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
-  fi
+  # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
+  echo "Generating DB password for bwc-topology postgres database"
+  local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+
+  local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
+  echo ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
 }
 
 ok_message() {
