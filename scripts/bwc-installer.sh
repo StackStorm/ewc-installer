@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -e
+set -ue
 
 ST2_COMMUNITY_INSTALLER='https://stackstorm.com/packages/install.sh'
 
@@ -14,6 +14,16 @@ USERNAME=''
 PASSWORD=''
 BRANCH='master'
 LICENSE_KEY=''
+
+BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer"
+
+NO_LICENSE_BANNER="
+LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
+Please visit http://www.brocade.com/en/products-services/network-automation/workflow-composer.html
+to purchase or trial BWC.
+
+Please contact sales@brocade.com if you have any questions.
+"
 
 setup_args() {
   for i in "$@"
@@ -45,20 +55,17 @@ setup_args() {
           ;;
           --license=*)
           LICENSE_KEY="${i#*=}"
+          shift
+          ;;
           *)
           # unknown option
           ;;
       esac
     done
 
-  if [ -Z ${LICENSE_KEY} ]; then
-    cat << EOF
-LICENSE KEY not provided. You\'ll need a license key to install Brocade Workflow Composer (BWC).
-Please visit http://www.brocade.com/en/products-services/network-automation/workflow-composer.html
-to purchase or trial BWC.
-
-Please contact sales@brocade.com if you gave any questions.
-EOF
+  if [ -z ${LICENSE_KEY} ]; then
+    printf "${NO_LICENSE_BANNER}"
+    exit 1
   fi
 
   if [[ "$VERSION" != '' ]]; then
@@ -138,12 +145,12 @@ if [ $? -ne 0 ]; then
     echo -e "Could not find file ${ST2_COMMUNITY_INSTALLER}."
     exit 2
 else
-    echo "Downloading deployment script from: ${ST2_COMMUNITY_INSTALLER}..."
+    echo "Downloading deployment script from: ${ST2_COMMUNITY_INSTALLER}"
     ST2_INSTALLER_FILE="st2-community-installer.sh"
-    curl -Ss -k -o ${ST2_INSTALLER_FILE} ${BWC_OS_INSTALLER}
+    curl -SsL -o ${ST2_INSTALLER_FILE} ${ST2_COMMUNITY_INSTALLER}
     chmod +x ${ST2_INSTALLER_FILE}
 
-    echo "Running deployment script for StackStorm Community Edition v${VERSION}..."
+    echo "Running deployment script for StackStorm Community Edition ${VERSION}..."
     echo "OS specific script cmd: bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
     bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
 fi
@@ -154,11 +161,11 @@ if [ $? -ne 0 ]; then
     echo -e "Could not find file ${BWC_OS_INSTALLER}"
     exit 2
 else
-    echo "Downloading deployment script from: ${BWC_OS_INSTALLER}..."
-    curl -Ss -k -o ${BWC_OS_INSTALLER_FILE} ${BWC_OS_INSTALLER}
+    echo "Downloading deployment script from: ${BWC_OS_INSTALLER}"
+    curl -Ss -o ${BWC_OS_INSTALLER_FILE} ${BWC_OS_INSTALLER}
     chmod +x ${BWC_OS_INSTALLER_FILE}
 
-    echo "Running deployment script for Brocade Workflow Composer v${VERSION}..."
+    echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
     echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
     bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
 fi
