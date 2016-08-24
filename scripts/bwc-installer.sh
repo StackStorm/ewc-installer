@@ -150,7 +150,7 @@ else
     curl -SsL -o ${ST2_INSTALLER_FILE} ${ST2_COMMUNITY_INSTALLER}
     chmod +x ${ST2_INSTALLER_FILE}
 
-    echo "Running deployment script for StackStorm Community Edition v${VERSION}..."
+    echo "Running deployment script for StackStorm Community Edition ${VERSION}..."
     echo "OS specific script cmd: bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
     bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
 fi
@@ -165,7 +165,7 @@ else
     curl -Ss -o ${BWC_OS_INSTALLER_FILE} ${BWC_OS_INSTALLER}
     chmod +x ${BWC_OS_INSTALLER_FILE}
 
-    echo "Running deployment script for Brocade Workflow Composer v${VERSION}..."
+    echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
     echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
     bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
 fi
