@@ -66,6 +66,8 @@ setup_args() {
   if [ -z ${LICENSE_KEY} ]; then
     printf "${NO_LICENSE_BANNER}"
     exit 1
+  else
+    LICENSE_KEY="--license=${LICENSE_KEY}"
   fi
 
   if [[ "$VERSION" != '' ]]; then
@@ -166,6 +168,6 @@ else
     chmod +x ${BWC_OS_INSTALLER_FILE}
 
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-    echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
-    bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
+    echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}"
+    bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
 fi
