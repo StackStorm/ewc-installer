@@ -1,10 +1,13 @@
-#!/bin/bash
+#! /bin/bash
 
-set -eu
+set -ue
 
 VERSION=''
+USERNAME=''
+PASSWORD=''
 RELEASE='stable'
 REPO_TYPE=''
+
 LICENSE_KEY=''
 
 NO_LICENSE_BANNER="
@@ -15,9 +18,7 @@ to purchase or trial BWC.
 Please contact sales@brocade.com if you have any questions.
 "
 
-BWC_ENTERPRISE_VERSION=''
-
-REPO_NAME='enterprise'
+SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer/scripts/setup"
 
 fail() {
   echo "############### ERROR ###############"
@@ -30,6 +31,10 @@ setup_args() {
   for i in "$@"
     do
       case $i in
+          --suite=*)
+          SUITE="${i#*=}"
+          shift
+          ;;
           -v|--version=*)
           VERSION="${i#*=}"
           shift
@@ -46,6 +51,14 @@ setup_args() {
           REPO_TYPE='staging'
           shift
           ;;
+          --user=*)
+          USERNAME="${i#*=}"
+          shift
+          ;;
+          --password=*)
+          PASSWORD="${i#*=}"
+          shift
+          ;;
           --license=*)
           LICENSE_KEY="${i#*=}"
           shift
@@ -57,11 +70,6 @@ setup_args() {
     done
 
   hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
-
-  if [ -z ${LICENSE_KEY} ]; then
-    printf "${NO_LICENSE_BANNER}"
-    exit 1
-  fi
 
   if [[ "$VERSION" != '' ]]; then
     if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
@@ -76,8 +84,13 @@ setup_args() {
     fi
   fi
 
+  if [ -z ${LICENSE_KEY} ]; then
+    printf "${NO_LICENSE_BANNER}"
+    exit 1
+  fi
+
   echo "########################################################"
-  echo "          Installing BWC $RELEASE $VERSION              "
+  echo "          Installing ${SUITE} $RELEASE $VERSION         "
   echo "########################################################"
 
   if [ "$REPO_TYPE" == "staging" ]; then
@@ -86,6 +99,12 @@ setup_args() {
     echo "### Installing from staging repos!!! USE AT YOUR OWN RISK!!! ###"
     echo "################################################################"
     REPO_NAME='staging-enterprise'
+  fi
+
+  if [[ "$USERNAME" = '' || "$PASSWORD" = '' ]]; then
+    echo "This script requires Brocade Workflow Composer credentials (Username/Password) to run."
+    echo "Please re-run script with --user=<USER> --password=<PASSWORD> arguments."
+    exit 1
   fi
 }
 
@@ -105,52 +124,67 @@ setup_package_cloud_repo() {
 get_full_pkg_versions() {
   if [ "$VERSION" != '' ];
   then
-
-    local BWC_VER=$(apt-cache show bwc-enterprise | grep Version | awk '{print $2}' | grep $VERSION | sort --version-sort | tail -n 1)
-    if [ -z "$BWC_VER" ]; then
-      echo "Could not find requested version of bwc-enterprise!!!"
-      sudo apt-cache policy bwc-enterprise
+    local IPF_VER=$(apt-cache show ${SUITE} | grep Version | awk '{print $2}' | grep $VERSION | sort --version-sort | tail -n 1)
+    if [ -z "$IPF_VER" ]; then
+      echo "Could not find requested version of bwc-ipfabric-suite!!!"
+      sudo apt-cache policy bwc-ipfabric-suite
       exit 3
     fi
 
-    BWC_ENTERPRISE_VERSION="=${BWC_VER}"
+    IPFABRIC_SUITE_VERSION="=${IPF_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
-    echo "bwc-enterprise${BWC_ENTERPRISE_VERSION}"
+    echo "bwc-ipfabric-suite${IPFABRIC_SUITE_VERSION}"
     echo "##########################################################"
   fi
 }
 
-install_bwc_enterprise() {
-  sudo apt-get update
-  sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION}
+install_ipfabric_automation_suite() {
+  sudo apt-get -y install bwc-ipfabric-suite${IPFABRIC_SUITE_VERSION}
+}
+
+setup_ipfabric_automation_suite() {
+  local IPFABRIC_SETUP_SCRIPT="${SETUP_SCRIPTS_BASE_PATH}/bwc-ipfabric-suite-setup.sh"
+  local IPFABRIC_SETUP_FILE="bwc-ipfabric-suite-setup.sh"
+  ERROR_MSG="
+    Cannot find ipfabric setup script ${IPFABRIC_SETUP_SCRIPT}.
+
+    Installation will abort now. Please contact support@Brocade.com with this error.
+    Please include SKU and the error message in the email.
+  "
+  curl --output /dev/null --silent --head --fail ${IPFABRIC_SETUP_SCRIPT} || (printf "\n\n${ERROR_MSG}\n\n" && exit 1)
+  echo "Downloading ipfabric setup script from: ${IPFABRIC_SETUP_SCRIPT}"
+  curl -Ss -o ${IPFABRIC_SETUP_FILE} ${IPFABRIC_SETUP_SCRIPT}
+  chmod +x ${IPFABRIC_SETUP_FILE}
+
+  # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
+  echo "Generating DB password for bwc-topology postgres database"
+  local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+
+  local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
+  echo ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
 }
 
 ok_message() {
 
-cat << "EOF"
-                                 )        )
-   (    (  (        (         ( /(     ( /(
- ( )\   )\))(   '   )\        )\())    )\())
- )((_) ((_)()\ )  (((_)      ((_)\   |((_)\
-((_)_  _(())\_)() )\___        ((_)  |_ ((_)
- | _ ) \ \((_)/ /((/ __|      / _ \  | |/ /
- | _ \  \ \/\/ /  | (__      | (_) |   ' <
- |___/   \_/\_/    \___|      \___/   _|\_\
+cat << EOF
+  ___ ____  _____ _    ____  ____  ___ ____    ___  _  __
+ |_ _|  _ \|  ___/ \  | __ )|  _ \|_ _/ ___|  / _ \| |/ /
+  | || |_) | |_ / _ \ |  _ \| |_) || | |     | | | | ' /
+  | ||  __/|  _/ ___ \| |_) |  _ < | | |___  | |_| | . \
+ |___|_|   |_|/_/   \_\____/|_| \_\___\____|  \___/|_|\_\
 
 EOF
 
-  echo " BWC is installed and ready to use."
-  echo ""
-  echo "Head to https://YOUR_HOST_IP/ to access the WebUI"
-  echo ""
+  echo "bwc-ipfabric-suite is installed and ready to use."
   echo "Don't forget to dive into our documentation! Here are some resources"
   echo "for you:"
   echo ""
-  echo "* Documentation  - https://bwc-docs.brocade.com"
+  echo "* Documentation  - https://bwc-docs.brocade.com/solutions/ipfabric/index.html"
   echo "* Support        - support@brocade.com"
   echo ""
-  echo "Thanks for installing Brocade Workflow Composer!"
+  echo "Thanks for installing Brocade Workflow Composer and the IP Fabric suite!"
 }
 
 trap 'fail' EXIT
@@ -158,7 +192,10 @@ trap 'fail' EXIT
 STEP="Setup args" && setup_args $@
 STEP="Setup packagecloud repo" && setup_package_cloud_repo
 STEP="Get package versions" && get_full_pkg_versions
-STEP="Install BWC enteprise" && install_bwc_enterprise
+
+# Install Automation Suites now
+STEP="Install IP Fabric Automation Suite" && install_ipfabric_automation_suite
+STEP="Setup IP Fabric Automation Suite" && setup_ipfabric_automation_suite
 trap - EXIT
 
 ok_message
