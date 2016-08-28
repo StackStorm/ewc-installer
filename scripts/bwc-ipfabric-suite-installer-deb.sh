@@ -9,6 +9,8 @@ RELEASE='stable'
 REPO_TYPE=''
 LICENSE_KEY=''
 
+BRANCH='master'
+
 REPO_NAME='enterprise'
 
 SUITE='bwc-ipfabric-suite'
@@ -22,7 +24,7 @@ to purchase or trial BWC.
 Please contact sales@brocade.com if you have any questions.
 "
 
-SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer/scripts/setup"
+SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer/${BRANCH}/scripts/setup"
 
 fail() {
   echo "############### ERROR ###############"
