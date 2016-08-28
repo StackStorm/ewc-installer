@@ -35,11 +35,11 @@ setup_args() {
           shift
           ;;
           -s|--stable)
-          RELEASE=stable
+          RELEASE='stable'
           shift
           ;;
           -u|--unstable)
-          RELEASE=unstable
+          RELEASE='unstable'
           shift
           ;;
           --staging)
@@ -72,7 +72,7 @@ setup_args() {
     if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
       echo "You're requesting a dev version! Switching to unstable!"
       RELEASE='unstable'
-      REPO_NAME='enterprise-unstable'
+      REPO_NAME="${REPO_NAME}-unstable"
     fi
   fi
 
@@ -85,7 +85,14 @@ setup_args() {
     echo "################################################################"
     echo "### Installing from staging repos!!! USE AT YOUR OWN RISK!!! ###"
     echo "################################################################"
-    REPO_NAME='staging-enterprise'
+    REPO_NAME="staging-${REPO_NAME}"
+  fi
+
+  if [ "$RELEASE" == "unstable" ]; then
+    echo "########################################################"
+    echo "                 Using Unstable Repos"
+    echo "########################################################"
+    REPO_NAME="${REPO_NAME}-unstable"
   fi
 }
 
