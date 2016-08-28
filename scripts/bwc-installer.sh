@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -ue
+set -u
 
 ST2_COMMUNITY_INSTALLER='https://stackstorm.com/packages/install.sh'
 
