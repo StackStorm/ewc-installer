@@ -9,7 +9,7 @@ RELEASE='stable'
 REPO_TYPE=''
 LICENSE_KEY=''
 
-REPO_NAME='enteprise'
+REPO_NAME='enterprise'
 
 SUITE='bwc-ipfabric-suite'
 
@@ -116,7 +116,7 @@ setup_args() {
 setup_package_cloud_repo() {
   local PKG_CLOUD_URL=https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.rpm.sh
   ERROR_MSG="
-    No access to enteprise repo ${PKG_CLOUD_URL}.
+    No access to enterprise repo ${PKG_CLOUD_URL}.
 
     LICENSE: ${LICENSE_KEY} not valid.
 
