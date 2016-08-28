@@ -98,7 +98,7 @@ setup_args() {
 setup_package_cloud_repo() {
   local PKG_CLOUD_URL=https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.deb.sh
   ERROR_MSG="
-    No access to enteprise repo ${PKG_CLOUD_URL}.
+    No access to enterprise repo ${PKG_CLOUD_URL}.
 
     LICENSE: ${LICENSE_KEY} not valid.
 
@@ -164,7 +164,7 @@ trap 'fail' EXIT
 STEP="Setup args" && setup_args $@
 STEP="Setup packagecloud repo" && setup_package_cloud_repo
 STEP="Get package versions" && get_full_pkg_versions
-STEP="Install BWC enteprise" && install_bwc_enterprise
+STEP="Install BWC enterprise" && install_bwc_enterprise
 trap - EXIT
 
 ok_message
