@@ -9,6 +9,8 @@ RELEASE='stable'
 REPO_TYPE=''
 LICENSE_KEY=''
 
+REPO_NAME='enteprise'
+
 SUITE='bwc-ipfabric-suite'
 IPFABRIC_SUITE_VERSION=''
 
