@@ -8,6 +8,9 @@ PASSWORD=''
 RELEASE='stable'
 REPO_TYPE=''
 LICENSE_KEY=''
+
+REPO_NAME='enteprise'
+
 SUITE='bwc-ipfabric-suite'
 
 NO_LICENSE_BANNER="
