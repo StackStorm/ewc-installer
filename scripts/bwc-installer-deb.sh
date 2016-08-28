@@ -76,7 +76,7 @@ setup_args() {
   fi
 
   echo "########################################################"
-  echo "          Installing BWC $RELEASE $VERSION              "
+  echo "         Installing BWC Entperise $RELEASE $VERSION     "
   echo "########################################################"
 
   if [ "$REPO_TYPE" == "staging" ]; then

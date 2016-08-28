@@ -155,6 +155,7 @@ else
     echo "Running deployment script for StackStorm Community Edition ${VERSION}..."
     echo "OS specific script cmd: bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
     bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
+    echo "StackStorm Community version installed successfully."
 fi
 
 
