@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -ue
+set -u
 
 DEBTEST=`lsb_release -a 2> /dev/null | grep Distributor | awk '{print $3}'`
 RHTEST=`cat /etc/redhat-release 2> /dev/null | sed -e "s~\(.*\)release.*~\1~g"`
@@ -77,6 +77,8 @@ setup_args() {
   if [ -z ${LICENSE_KEY} ]; then
     printf "${NO_LICENSE_BANNER}"
     exit 1
+  else
+    LICENSE_KEY="--license=${LICENSE_KEY}"
   fi
 
   if [[ "$USERNAME" = '' || "$PASSWORD" = '' ]]; then
@@ -144,5 +146,5 @@ else
 
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
     echo "OS specific script cmd: bash ${SUITE_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
-    bash ${SUITE_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
+    bash ${SUITE_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
 fi
