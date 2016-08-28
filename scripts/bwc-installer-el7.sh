@@ -15,7 +15,7 @@ to purchase or trial BWC.
 Please contact sales@brocade.com if you have any questions.
 "
 
-BWC_ENTERPRISE_VERSION=''
+BWC_ENTERPRISE_PKG='bwc-enterprise'
 
 REPO_NAME='enterprise'
 
@@ -35,11 +35,11 @@ setup_args() {
           shift
           ;;
           -s|--stable)
-          RELEASE=stable
+          RELEASE='stable'
           shift
           ;;
           -u|--unstable)
-          RELEASE=unstable
+          RELEASE='unstable'
           shift
           ;;
           --staging)
@@ -96,7 +96,7 @@ setup_args() {
 }
 
 setup_package_cloud_repo() {
-  local PKG_CLOUD_URL=https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.deb.sh
+  local PKG_CLOUD_URL=https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.rpm.sh
   ERROR_MSG="
     No access to enteprise repo ${PKG_CLOUD_URL}.
 
@@ -112,24 +112,23 @@ get_full_pkg_versions() {
   if [ "$VERSION" != '' ];
   then
 
-    local BWC_VER=$(apt-cache show bwc-enterprise | grep Version | awk '{print $2}' | grep $VERSION | sort --version-sort | tail -n 1)
+    local BWC_VER=$(repoquery --nvr --show-duplicates ${BWC_ENTERPRISE_PKG} | grep ${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$BWC_VER" ]; then
-      echo "Could not find requested version of bwc-enterprise!!!"
-      sudo apt-cache policy bwc-enterprise
+      echo "Could not find requested version of ${BWC_ENTERPRISE_PKG}!!!"
+      sudo repoquery --nvr --show-duplicates ${BWC_ENTERPRISE_PKG}
       exit 3
     fi
 
-    BWC_ENTERPRISE_VERSION="=${BWC_VER}"
+    BWC_ENTERPRISE_PKG=${BWC_VER}
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
-    echo "bwc-enterprise${BWC_ENTERPRISE_VERSION}"
+    echo "${BWC_ENTERPRISE_PKG}"
     echo "##########################################################"
   fi
 }
 
 install_bwc_enterprise() {
-  sudo apt-get update
-  sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION}
+  sudo yum -y install ${BWC_ENTERPRISE_PKG}
 }
 
 ok_message() {

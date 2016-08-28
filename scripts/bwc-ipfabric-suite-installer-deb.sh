@@ -7,8 +7,10 @@ USERNAME=''
 PASSWORD=''
 RELEASE='stable'
 REPO_TYPE=''
-
 LICENSE_KEY=''
+
+SUITE='bwc-ipfabric-suite'
+IPFABRIC_SUITE_VERSION=''
 
 NO_LICENSE_BANNER="
 LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
@@ -31,10 +33,6 @@ setup_args() {
   for i in "$@"
     do
       case $i in
-          --suite=*)
-          SUITE="${i#*=}"
-          shift
-          ;;
           -v|--version=*)
           VERSION="${i#*=}"
           shift
@@ -80,7 +78,6 @@ setup_args() {
     if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
       echo "You're requesting a dev version! Switching to unstable!"
       RELEASE='unstable'
-      REPO_NAME='enterprise-unstable'
     fi
   fi
 
@@ -98,8 +95,16 @@ setup_args() {
     echo "################################################################"
     echo "### Installing from staging repos!!! USE AT YOUR OWN RISK!!! ###"
     echo "################################################################"
-    REPO_NAME='staging-enterprise'
+    REPO_NAME="staging-${REPO_NAME}"
   fi
+
+  if [ "$RELEASE" == "unstable" ]; then
+    echo "########################################################"
+    echo "                 Using Unstable Repos"
+    echo "########################################################"
+    REPO_NAME="${REPO_NAME}-unstable"
+  fi
+
 
   if [[ "$USERNAME" = '' || "$PASSWORD" = '' ]]; then
     echo "This script requires Brocade Workflow Composer credentials (Username/Password) to run."
@@ -126,21 +131,21 @@ get_full_pkg_versions() {
   then
     local IPF_VER=$(apt-cache show ${SUITE} | grep Version | awk '{print $2}' | grep $VERSION | sort --version-sort | tail -n 1)
     if [ -z "$IPF_VER" ]; then
-      echo "Could not find requested version of bwc-ipfabric-suite!!!"
-      sudo apt-cache policy bwc-ipfabric-suite
+      echo "Could not find requested version of ${SUITE}!!!"
+      sudo apt-cache policy ${SUITE}
       exit 3
     fi
 
     IPFABRIC_SUITE_VERSION="=${IPF_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
-    echo "bwc-ipfabric-suite${IPFABRIC_SUITE_VERSION}"
+    echo "${SUITE}${IPFABRIC_SUITE_VERSION}"
     echo "##########################################################"
   fi
 }
 
 install_ipfabric_automation_suite() {
-  sudo apt-get -y install bwc-ipfabric-suite${IPFABRIC_SUITE_VERSION}
+  sudo apt-get -y install ${SUITE}${IPFABRIC_SUITE_VERSION}
 }
 
 setup_ipfabric_automation_suite() {
