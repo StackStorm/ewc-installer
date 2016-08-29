@@ -172,7 +172,7 @@ setup_ipfabric_automation_suite() {
   echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
 
   local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
-  ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+  ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "./${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
 }
 
 ok_message() {
