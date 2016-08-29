@@ -23,6 +23,7 @@ to purchase or trial BWC.
 Please contact sales@brocade.com if you have any questions.
 "
 
+# XXX: Once we have our S3 buckets set up, point these to public URLs.
 SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer/${BRANCH}/scripts/setup"
 
 fail() {

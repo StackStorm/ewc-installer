@@ -13,6 +13,8 @@ BRANCH='master'
 LICENSE_KEY=''
 
 SUITES_LIST=(bwc-ipfabric-suite) # Space separated list of names that should map to package names.
+
+# XXX: Once we have our S3 buckets set up, point these to public URLs.
 BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer"
 
 SUITE=''
