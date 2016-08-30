@@ -14,7 +14,7 @@ USERNAME=''
 PASSWORD=''
 BRANCH='master'
 LICENSE_KEY=''
-SUITE='bwc-ipfabric-suite'
+SUITE=''
 
 SUITES_LIST=(bwc-ipfabric-suite) # Space separated list of names that should map to package names.
 
@@ -102,12 +102,14 @@ setup_args() {
     echo "Resorting to default username and password... You have an option to change password later!"
   fi
 
-  if [[ $SUITES_LIST =~ $SUITE ]]; then
-    SUITE="--suite=${SUITE}"
-  else
-    echo "${SUITE} is not a valid suite. Options are ${SUITES_LIST}."
-    echo "Please re-run with --suite=<SUITE> with one of the valid suites listed above."
-    exit 1
+  if [ ! -z ${SUITE} ]; then
+    if [[ $SUITES_LIST =~ $SUITE ]]; then
+      SUITE="--suite=${SUITE}"
+    else
+      echo "${SUITE} is not a valid suite. Options are ${SUITES_LIST}."
+      echo "Please re-run with --suite=<SUITE> with one of the valid suites listed above."
+      exit 1
+    fi
   fi
 }
 
@@ -198,16 +200,18 @@ fi
 SUITE_INSTALLER_FILE='bwc-suite-installer.sh'
 SUITE_INSTALLER="${BASE_PATH}/${BRANCH}/scripts/bwc-suite-installer.sh"
 
-CURLTEST=`curl --output /dev/null --silent --head --fail ${SUITE_INSTALLER}`
-if [ $? -ne 0 ]; then
-    echo -e "Could not find file ${SUITE_INSTALLER}"
-    exit 2
-else
-    echo "Downloading deployment script from: ${SUITE_INSTALLER}"
-    curl -Ss -o ${SUITE_INSTALLER_FILE} ${SUITE_INSTALLER}
-    chmod +x ${SUITE_INSTALLER_FILE}
+if [ ! -z ${SUITE} ]; then
+  CURLTEST=`curl --output /dev/null --silent --head --fail ${SUITE_INSTALLER}`
+  if [ $? -ne 0 ]; then
+      echo -e "Could not find file ${SUITE_INSTALLER}"
+      exit 2
+  else
+      echo "Downloading deployment script from: ${SUITE_INSTALLER}"
+      curl -Ss -o ${SUITE_INSTALLER_FILE} ${SUITE_INSTALLER}
+      chmod +x ${SUITE_INSTALLER_FILE}
 
-    echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-    echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}"
-    bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}
+      echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
+      echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}"
+      bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}
+  fi
 fi
