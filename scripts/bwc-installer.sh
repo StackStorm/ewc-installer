@@ -14,7 +14,7 @@ USERNAME=''
 PASSWORD=''
 BRANCH='master'
 LICENSE_KEY=''
-SUITE='bwc-ipfabric-suite'
+SUITE=''
 
 SUITES_LIST=(bwc-ipfabric-suite) # Space separated list of names that should map to package names.
 
@@ -102,12 +102,14 @@ setup_args() {
     echo "Resorting to default username and password... You have an option to change password later!"
   fi
 
-  if [[ $SUITES_LIST =~ $SUITE ]]; then
-    SUITE="--suite=${SUITE}"
-  else
-    echo "${SUITE} is not a valid suite. Options are ${SUITES_LIST}."
-    echo "Please re-run with --suite=<SUITE> with one of the valid suites listed above."
-    exit 1
+  if [ ! -z ${SUITE} ]; then
+    if [[ $SUITES_LIST =~ $SUITE ]]; then
+      SUITE="--suite=${SUITE}"
+    else
+      echo "${SUITE} is not a valid suite. Options are ${SUITES_LIST}."
+      echo "Please re-run with --suite=<SUITE> with one of the valid suites listed above."
+      exit 1
+    fi
   fi
 }
 
