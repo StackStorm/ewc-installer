@@ -153,8 +153,8 @@ elif [[ -n "$DEBTEST" ]]; then
   echo "*** Detected Distro is ${DEBTEST} ***"
   SUBTYPE=`lsb_release -a 2>&1 | grep Codename | grep -v "LSB" | awk '{print $2}'`
   echo "*** Detected flavor ${SUBTYPE} ***"
-  if [[ "$SUBTYPE" != 'trusty' ]]; then
-    echo "Unsupported ubuntu flavor ${SUBTYPE}. Please use 14.04 (trusty) as base system!"
+  if [[ "$SUBTYPE" != 'trusty' && "$SUBTYPE" != 'xenial' ]]; then
+    echo "Unsupported ubuntu flavor ${SUBTYPE}. Please use 14.04 (trusty) or 16.04 (xenial) as base system!"
     exit 2
   fi
   BWC_OS_INSTALLER="${BASE_PATH}/${BRANCH}/scripts/bwc-installer-deb.sh"
@@ -179,6 +179,11 @@ else
     echo "Running deployment script for StackStorm Community Edition ${VERSION}..."
     echo "OS specific script cmd: bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
     bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
+    if [ $? -ne 0 ]; then
+      echo "StackStorm community version failed to install."
+      echo "Please contact support@brocade.com with installation logs if you have any questions."
+      exit 1
+    fi
     echo "StackStorm Community version installed successfully."
 fi
 
@@ -195,6 +200,12 @@ else
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
     echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}"
     bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
+
+    if [ $? -ne 0 ]; then
+      echo "BWC Enterprise failed to install."
+      echo "Please contact support@brocade.com with installation logs if you have any questions."
+      exit 2
+    fi
 fi
 
 SUITE_INSTALLER_FILE='bwc-suite-installer.sh'
@@ -213,5 +224,10 @@ if [ ! -z ${SUITE} ]; then
       echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
       echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}"
       bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}
+      if [ $? -ne 0 ]; then
+        echo "BWC Automation Suites failed to install."
+        echo "Please contact support@brocade.com with installation logs if you have any questions."
+        exit 3
+      fi
   fi
 fi
