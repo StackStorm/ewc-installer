@@ -128,8 +128,14 @@ get_full_pkg_versions() {
 }
 
 install_bwc_enterprise() {
+  # Install BWC
   sudo apt-get update
   sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION}
+
+  # Enable RBAC
+  sudo apt-get install -y crudini
+  sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
+  sudo st2ctl restart-component st2api
 }
 
 ok_message() {

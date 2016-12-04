@@ -128,7 +128,13 @@ get_full_pkg_versions() {
 }
 
 install_bwc_enterprise() {
+  # Install BWC
   sudo yum -y install ${BWC_ENTERPRISE_PKG}
+
+  # Enable RBAC
+  sudo yum -y install crudini
+  sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
+  sudo st2ctl restart-component st2api
 }
 
 ok_message() {
