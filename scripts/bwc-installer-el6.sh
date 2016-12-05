@@ -130,10 +130,31 @@ get_full_pkg_versions() {
 install_bwc_enterprise() {
   # Install BWC
   sudo yum -y install ${BWC_ENTERPRISE_PKG}
+}
 
+enable_and_configure_rbac() {
   # Enable RBAC
-  sudo yum -y install crudini
+  sudo apt-get install -y crudini
   sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
+
+  # Write default admin role assignment for the admin user
+
+  # TODO: Move directory creation to package
+  sudo mkdir -p /opt/stackstorm/rbac/assignments/
+  sudo mkdir -p /opt/stackstorm/rbac/roles/
+
+  ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${USERNAME}.yaml"
+  sudo bash -c "cat > ${ROLE_ASSIGNMENT_FILE}" <<EOL
+---
+  username: "${USERNAME}"
+  roles:
+    - "system_admin"
+EOL
+
+  # Sync roles and assignments
+  sudo st2-apply-rbac-definitions --config-file /etc/st2/st2.conf
+
+  # Restart st2api
   sudo st2ctl restart-component st2api
 }
 
@@ -170,6 +191,7 @@ STEP="Setup args" && setup_args $@
 STEP="Setup packagecloud repo" && setup_package_cloud_repo
 STEP="Get package versions" && get_full_pkg_versions
 STEP="Install BWC enterprise" && install_bwc_enterprise
+STEP="Enable and configure RBAC" && enable_and_configure_rbac
 trap - EXIT
 
 ok_message
