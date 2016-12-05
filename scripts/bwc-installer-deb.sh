@@ -50,6 +50,10 @@ setup_args() {
           LICENSE_KEY="${i#*=}"
           shift
           ;;
+          --user=*)
+          USERNAME="${i#*=}"
+          shift
+          ;;
           *)
           # unknown option
           ;;
@@ -138,6 +142,27 @@ install_bwc_enterprise() {
   sudo st2ctl restart-component st2api
 }
 
+enable_and_configure_rbac() {
+  # Enable RBAC
+  sudo apt-get install -y crudini
+  sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
+
+  # Write default admin role assignment for the admin user
+  ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${username}.yaml"
+  sudo cat > ${ROLE_ASSIGNMENT_FILE} <<EOL
+---
+  username: "${USERNAME}"
+  roles:
+    - "system_admin"
+EOL
+
+  # Sync roles and assignments
+  sudo st2-apply-rbac-definitions --config-file /etc/st2/st2.conf
+
+  # Restart st2api
+  sudo st2ctl restart-component st2api
+}
+
 ok_message() {
 
 cat << "EOF"
@@ -171,6 +196,7 @@ STEP="Setup args" && setup_args $@
 STEP="Setup packagecloud repo" && setup_package_cloud_repo
 STEP="Get package versions" && get_full_pkg_versions
 STEP="Install BWC enterprise" && install_bwc_enterprise
+STEP="Enable and configure RBAC" && enable_and_configure_rbac
 trap - EXIT
 
 ok_message
