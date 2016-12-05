@@ -135,11 +135,6 @@ install_bwc_enterprise() {
   # Install BWC
   sudo apt-get update
   sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION}
-
-  # Enable RBAC
-  sudo apt-get install -y crudini
-  sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
-  sudo st2ctl restart-component st2api
 }
 
 enable_and_configure_rbac() {
@@ -154,7 +149,7 @@ enable_and_configure_rbac() {
   sudo mkdir -p /opt/stackstorm/rbac/roles/
 
   ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${USERNAME}.yaml"
-  sudo cat > ${ROLE_ASSIGNMENT_FILE} <<EOL
+  sudo bash -c "cat > ${ROLE_ASSIGNMENT_FILE}" <<EOL
 ---
   username: "${USERNAME}"
   roles:
