@@ -148,7 +148,7 @@ enable_and_configure_rbac() {
   sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
 
   # Write default admin role assignment for the admin user
-  ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${username}.yaml"
+  ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${USERNAME}.yaml"
   sudo cat > ${ROLE_ASSIGNMENT_FILE} <<EOL
 ---
   username: "${USERNAME}"
