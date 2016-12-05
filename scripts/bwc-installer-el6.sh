@@ -138,7 +138,7 @@ install_bwc_enterprise() {
 
 enable_and_configure_rbac() {
   # Enable RBAC
-  sudo apt-get install -y crudini
+  sudo yum -y install crudini
   sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
 
   # Write default admin role assignment for the admin user
