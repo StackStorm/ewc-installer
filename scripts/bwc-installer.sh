@@ -1,4 +1,4 @@
-sudo #! /bin/bash
+#! /bin/bash
 
 set -u
 
@@ -59,10 +59,6 @@ setup_args() {
           ;;
           --password=*)
           PASSWORD="${i#*=}"
-          shift
-          ;;
-          --branch=*)
-          BRANCH="${i#*=}"
           shift
           ;;
           --license=*)
