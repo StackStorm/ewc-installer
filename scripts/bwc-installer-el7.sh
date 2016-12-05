@@ -46,6 +46,10 @@ setup_args() {
           REPO_TYPE='staging'
           shift
           ;;
+          --user=*)
+          USERNAME="${i#*=}"
+          shift
+          ;;
           --license=*)
           LICENSE_KEY="${i#*=}"
           shift
