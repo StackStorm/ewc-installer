@@ -154,8 +154,8 @@ install_ipfabric_automation_suite() {
 }
 
 setup_ipfabric_automation_suite() {
-  local IPFABRIC_SETUP_SCRIPT="${SETUP_SCRIPTS_BASE_PATH}/bwc-ipfabric-suite-setup.sh"
-  local IPFABRIC_SETUP_FILE="bwc-ipfabric-suite-setup.sh"
+  local IPFABRIC_SETUP_SCRIPT="${SETUP_SCRIPTS_BASE_PATH}/bwc-dcfabric-suite-setup.sh"
+  local IPFABRIC_SETUP_FILE="bwc-dcfabric-suite-setup.sh"
   ERROR_MSG="
     Cannot find dcfabric setup script ${IPFABRIC_SETUP_SCRIPT}.
 
