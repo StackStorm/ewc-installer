@@ -12,7 +12,7 @@ REPO_TYPE=''
 ST2_PKG_VERSION=''
 USERNAME=''
 PASSWORD=''
-BRANCH='dcfabric_installers'
+BRANCH='master'
 LICENSE_KEY=''
 SUITE=''
 
