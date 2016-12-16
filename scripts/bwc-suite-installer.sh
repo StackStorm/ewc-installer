@@ -9,7 +9,7 @@ RELEASE='stable'
 REPO_TYPE=''
 USERNAME=''
 PASSWORD=''
-BRANCH='dcfabric_installers'
+BRANCH='master'
 LICENSE_KEY=''
 
 SUITES_LIST=(dcfabric-suite) # Space separated list of names that should map to package names.

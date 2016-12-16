@@ -9,7 +9,7 @@ RELEASE='stable'
 REPO_TYPE=''
 LICENSE_KEY=''
 
-BRANCH='dcfabric_installers'
+BRANCH='master'
 
 REPO_NAME='enterprise'
 
