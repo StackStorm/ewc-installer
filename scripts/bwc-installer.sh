@@ -166,7 +166,7 @@ fi
 
 hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
 
-ST2_CURL_TEST=`curl --output /dev/null --silent --head --fail ${ST2_COMMUNITY_INSTALLER}`
+ST2_CURL_TEST=`curl --output /dev/null --silent --fail ${ST2_COMMUNITY_INSTALLER}`
 if [ $? -ne 0 ]; then
     echo -e "Could not find file ${ST2_COMMUNITY_INSTALLER}."
     exit 2
@@ -188,7 +188,7 @@ else
 fi
 
 
-CURLTEST=`curl --output /dev/null --silent --head --fail ${BWC_OS_INSTALLER}`
+CURLTEST=`curl --output /dev/null --silent --fail ${BWC_OS_INSTALLER}`
 if [ $? -ne 0 ]; then
     echo -e "Could not find file ${BWC_OS_INSTALLER}"
     exit 2
@@ -212,7 +212,7 @@ SUITE_INSTALLER_FILE='bwc-suite-installer.sh'
 SUITE_INSTALLER="${BASE_PATH}/${BRANCH}/scripts/bwc-suite-installer.sh"
 
 if [ ! -z ${SUITE} ]; then
-  CURLTEST=`curl --output /dev/null --silent --head --fail ${SUITE_INSTALLER}`
+  CURLTEST=`curl --output /dev/null --silent --fail ${SUITE_INSTALLER}`
   if [ $? -ne 0 ]; then
       echo -e "Could not find file ${SUITE_INSTALLER}"
       exit 2
