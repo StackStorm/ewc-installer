@@ -149,6 +149,10 @@ get_full_pkg_versions() {
   fi
 }
 
+install_network_essentials_pack() {
+  sudo st2 pack install network_essentials=${IPFABRIC_SUITE_VERSION}
+}
+
 install_ipfabric_automation_suite() {
   sudo apt-get -y install ${SUITE}${IPFABRIC_SUITE_VERSION}
 }
@@ -207,6 +211,7 @@ STEP="Setup packagecloud repo" && setup_package_cloud_repo
 STEP="Get package versions" && get_full_pkg_versions
 
 # Install Automation Suites now
+STEP="Install Network Essentials Pack" && install_network_essentials_pack
 STEP="Install DC Fabric Automation Suite" && install_ipfabric_automation_suite
 STEP="Setup DC Fabric Automation Suite" && setup_ipfabric_automation_suite
 trap - EXIT
