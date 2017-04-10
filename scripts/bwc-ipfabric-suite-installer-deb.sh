@@ -153,6 +153,16 @@ install_ipfabric_automation_suite() {
   sudo apt-get -y install ${SUITE}${IPFABRIC_SUITE_VERSION}
 }
 
+setup_postgresql_user_and_database() {
+  echo "Generating DB password for bwc-topology postgres database"
+  DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+
+  cat << EHD | sudo -u postgres psql
+CREATE ROLE bwc WITH CREATEDB LOGIN ENCRYPTED PASSWORD '${DB_PASSWORD}';
+CREATE DATABASE bwc OWNER bwc;
+EHD
+}
+
 setup_ipfabric_automation_suite() {
   local IPFABRIC_SETUP_SCRIPT="${SETUP_SCRIPTS_BASE_PATH}/bwc-ipfabric-suite-setup.sh"
   local IPFABRIC_SETUP_FILE="bwc-ipfabric-suite-setup.sh"
@@ -168,8 +178,6 @@ setup_ipfabric_automation_suite() {
   chmod +x ${IPFABRIC_SETUP_FILE}
 
   # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-  echo "Generating DB password for bwc-topology postgres database"
-  local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
   echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
 
   local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
@@ -198,10 +206,12 @@ EOF
 }
 
 trap 'fail' EXIT
+
 # Install steps go here!
 STEP="Setup args" && setup_args $@
 STEP="Setup packagecloud repo" && setup_package_cloud_repo
 STEP="Get package versions" && get_full_pkg_versions
+STEP="Setup PostgreSQL" && setup_postgresql_user_and_database
 
 # Install Automation Suites now
 STEP="Install IP Fabric Automation Suite" && install_ipfabric_automation_suite
