@@ -9,7 +9,7 @@ RELEASE='stable'
 REPO_TYPE=''
 LICENSE_KEY=''
 
-BRANCH='master'
+BRANCH='password_allocation'
 
 REPO_NAME='enterprise'
 
