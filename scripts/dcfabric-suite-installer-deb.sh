@@ -154,6 +154,26 @@ install_network_essentials_pack() {
 }
 
 install_ipfabric_automation_suite() {
+  local IPFABRIC_SETUP_SCRIPT="${SETUP_SCRIPTS_BASE_PATH}/bwc-dcfabric-suite-dbpass.sh"
+  local IPFABRIC_SETUP_FILE="bwc-dcfabric-suite-dbpass.sh"
+  ERROR_MSG="
+    Cannot find dcfabric setup script ${IPFABRIC_SETUP_SCRIPT}.
+
+    Installation will abort now. Please contact support@Brocade.com with this error.
+    Please include SKU and the error message in the email.
+  "
+  curl --output /dev/null --silent --head --fail ${IPFABRIC_SETUP_SCRIPT} || (printf "\n\n${ERROR_MSG}\n\n" && exit 1)
+  echo "Downloading dcfabric setup script from: ${IPFABRIC_SETUP_SCRIPT}"
+  curl -Ss -o ${IPFABRIC_SETUP_FILE} ${IPFABRIC_SETUP_SCRIPT}
+  chmod +x ${IPFABRIC_SETUP_FILE}
+
+  # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
+  echo "Generating DB password for network-essentials postgres database"
+  local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
+  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+
+  bash -c "./${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+ 
   sudo apt-get -y install ${SUITE}${DCFABRIC_SUITE_VERSION}
 }
 
@@ -174,10 +194,10 @@ setup_ipfabric_automation_suite() {
   # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
   echo "Generating DB password for network-essentials postgres database"
   local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE}"
 
   local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
-  ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "./${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+  ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "./${IPFABRIC_SETUP_FILE}"
 }
 
 ok_message() {
