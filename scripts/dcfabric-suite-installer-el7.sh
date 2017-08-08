@@ -155,6 +155,7 @@ install_network_essentials_pack() {
 }
 
 install_ipfabric_automation_suite() {
+  sudo yum -y update
   sudo yum -y install ${SUITE} - ${DCFABRIC_SUITE_VERSION}
 }
 
