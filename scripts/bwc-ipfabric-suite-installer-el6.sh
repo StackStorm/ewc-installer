@@ -148,7 +148,6 @@ get_full_pkg_versions() {
 }
 
 install_ipfabric_automation_suite() {
-  sudo yum -y update
   sudo yum -y install ${SUITE}
 }
 
