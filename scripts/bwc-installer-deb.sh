@@ -116,17 +116,44 @@ get_full_pkg_versions() {
   if [ "$VERSION" != '' ];
   then
 
-    local BWC_VER=$(apt-cache show bwc-enterprise | grep Version | awk '{print $2}' | grep $VERSION | sort --version-sort | tail -n 1)
+    local BWC_VER=$(apt-cache show bwc-enterprise | grep Version | awk '{print $2}' | grep ^${VERSION//./\\.} | sort --version-sort | tail -n 1)
     if [ -z "$BWC_VER" ]; then
       echo "Could not find requested version of bwc-enterprise!!!"
       sudo apt-cache policy bwc-enterprise
       exit 3
     fi
 
+    local ST2FLOW_VER=$(apt-cache show st2flow | grep Version | awk '{print $2}' | grep ^${VERSION//./\\.} | sort --version-sort | tail -n 1)
+    if [ -z "$ST2FLOW_VER" ]; then
+      echo "Could not find requested version of st2flow!!!"
+      sudo apt-cache policy st2flow
+      exit 3
+    fi
+
+    local ST2LDAP_VER=$(apt-cache show st2-auth-ldap | grep Version | awk '{print $2}' | grep ^${VERSION//./\\.} | sort --version-sort | tail -n 1)
+    if [ -z "$ST2LDAP_VER" ]; then
+      echo "Could not find requested version of st2-auth-ldap!!!"
+      sudo apt-cache policy st2-auth-ldap
+      exit 3
+    fi
+
+    local BWCUI_VER=$(apt-cache show bwc-ui | grep Version | awk '{print $2}' | grep ^${VERSION//./\\.} | sort --version-sort | tail -n 1)
+    if [ -z "$BWC_VER" ]; then
+      echo "Could not find requested version of bwc-ui!!!"
+      sudo apt-cache policy bwc-ui
+      exit 3
+    fi
+
     BWC_ENTERPRISE_VERSION="=${BWC_VER}"
+    ST2FLOW_PKG_VERSION="=${ST2FLOW_VER}"
+    ST2LDAP_PKG_VERSION="=${ST2LDAP_VER}"
+    BWCUI_PKG_VERSION="=${BWCUI_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
     echo "bwc-enterprise${BWC_ENTERPRISE_VERSION}"
+    echo "st2flow${ST2FLOW_PKG_VERSION}"
+    echo "st2-auth-ldap${ST2LDAP_PKG_VERSION}"
+    echo "bwc-ui${BWCUI_PKG_VERSION}"
     echo "##########################################################"
   fi
 }
@@ -134,7 +161,12 @@ get_full_pkg_versions() {
 install_bwc_enterprise() {
   # Install BWC
   sudo apt-get update
-  sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION}
+  if [ "$VERSION" != '' ];
+  then
+    sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION} st2flow${ST2FLOW_PKG_VERSION} st2-auth-ldap${ST2LDAP_PKG_VERSION} bwc-ui${BWCUI_PKG_VERSION}
+  else
+    sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION}
+  fi
 }
 
 enable_and_configure_rbac() {
