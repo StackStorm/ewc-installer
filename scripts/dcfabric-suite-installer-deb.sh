@@ -151,7 +151,7 @@ get_full_pkg_versions() {
 
 install_network_essentials_pack() {
   sudo apt-get install -y gcc
-  sudo st2 login $USERNAME -p $PASSWORD --write-password
+  st2 login $USERNAME -p $PASSWORD
   sudo st2 pack install network_essentials=${DCFABRIC_SUITE_VERSION}
 }
 
