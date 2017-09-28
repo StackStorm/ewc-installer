@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 set -u
 
@@ -75,7 +75,7 @@ setup_args() {
     printf "${NO_LICENSE_BANNER}"
     exit 1
   else
-    LICENSE_KEY="--license=${LICENSE_KEY}"
+    LICENSE_KEY_ARG="--license=${LICENSE_KEY}"
   fi
 
   if [[ "$VERSION" != '' ]]; then
@@ -88,6 +88,27 @@ setup_args() {
      echo "You're requesting a dev version! Switching to unstable!"
      RELEASE='unstable'
     fi
+  fi
+
+  REPO_NAME='enterprise'
+  if [ "$REPO_TYPE" == "staging" ]; then
+    REPO_NAME="staging-${REPO_NAME}"
+  fi
+  if [ "$RELEASE" == "unstable" ]; then
+    REPO_NAME="${REPO_NAME}-unstable"
+  fi
+
+  hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
+
+  # Check if provided license key is valid
+  LICENSE_CHECK=`curl --head --silent --output /dev/null --fail --retry 3 "https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.deb.sh"`
+  if [ $? -ne 0 ]; then
+    echo -e "
+      LICENSE: ${LICENSE_KEY} not valid.
+
+      Please contact support@brocade.com. Please include the SKU and the invalid license key in the email.
+    "
+    exit 2
   fi
 
   if [[ "$USERNAME" = '' || "$PASSWORD" = '' ]]; then
@@ -164,8 +185,6 @@ else
   exit 2
 fi
 
-hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
-
 ST2_CURL_TEST=`curl --output /dev/null --silent --fail ${ST2_COMMUNITY_INSTALLER}`
 if [ $? -ne 0 ]; then
     echo -e "Could not find file ${ST2_COMMUNITY_INSTALLER}."
@@ -198,8 +217,8 @@ else
     chmod +x ${BWC_OS_INSTALLER_FILE}
 
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-    echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}"
-    bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
+    echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG}"
+    bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG}
 
     if [ $? -ne 0 ]; then
       echo "BWC Enterprise failed to install."
@@ -222,8 +241,8 @@ if [ ! -z ${SUITE} ]; then
       chmod +x ${SUITE_INSTALLER_FILE}
 
       echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-      echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}"
-      bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY} ${SUITE}
+      echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
+      bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}
       if [ $? -ne 0 ]; then
         echo "BWC Automation Suites failed to install."
         echo "Please contact support@brocade.com with installation logs if you have any questions."
