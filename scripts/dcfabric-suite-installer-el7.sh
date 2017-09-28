@@ -152,7 +152,7 @@ get_full_pkg_versions() {
 install_network_essentials_pack() {
   sudo yum -y install gcc
   st2 login $USERNAME -p $PASSWORD
-  sudo st2 pack install network_essentials=${DCFABRIC_SUITE_VERSION}
+  st2 pack install network_essentials=${DCFABRIC_SUITE_VERSION}
 }
 
 install_ipfabric_automation_suite() {
