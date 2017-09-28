@@ -150,7 +150,8 @@ get_full_pkg_versions() {
 }
 
 install_network_essentials_pack() {
-  sudo st2 pack install network_essentials=${DCFABRIC_SUITE_VERSION}
+  sudo apt-get install -y gcc
+  st2 pack install network_essentials=${DCFABRIC_SUITE_VERSION}
 }
 
 install_ipfabric_automation_suite() {
