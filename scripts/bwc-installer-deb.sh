@@ -142,10 +142,6 @@ enable_and_configure_rbac() {
   sudo apt-get install -y crudini
   sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
 
-  # TODO: Move directory creation to package
-  sudo mkdir -p /opt/stackstorm/rbac/assignments/
-  sudo mkdir -p /opt/stackstorm/rbac/roles/
-
   # Write role assignment for admin user
   ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${USERNAME}.yaml"
   sudo bash -c "cat > ${ROLE_ASSIGNMENT_FILE}" <<EOL
