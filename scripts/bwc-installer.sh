@@ -142,6 +142,16 @@ get_version_branch() {
   fi
 }
 
+# Check if .deb package(s) is installed
+deb_is_installed() {
+  dpkg --status $1 > /dev/null 2>&1
+}
+
+# Check if .rpm package(s) is installed
+rpm_is_installed() {
+  rpm -q --quiet $1
+}
+
 if [[ "$VERSION" != '' ]]; then
   get_version_branch $VERSION
   VERSION="--version=${VERSION}"
@@ -159,7 +169,7 @@ USERNAME="--user=${USERNAME}"
 PASSWORD="--password=${PASSWORD}"
 
 if [[ -n "$RHTEST" ]]; then
-  TYPE="rpms"
+  PKG_TYPE="rpm"
   echo "*** Detected Distro is ${RHTEST} ***"
   RHMAJVER=`cat /etc/redhat-release | sed 's/[^0-9.]*\([0-9.]\).*/\1/'`
   echo "*** Detected distro version ${RHMAJVER} ***"
@@ -170,7 +180,7 @@ if [[ -n "$RHTEST" ]]; then
   BWC_OS_INSTALLER="${BASE_PATH}/${BRANCH}/scripts/bwc-installer-el${RHMAJVER}.sh"
   BWC_OS_INSTALLER_FILE="bwc-installer-el${RHMAJVER}.sh"
 elif [[ -n "$DEBTEST" ]]; then
-  TYPE="debs"
+  PKG_TYPE="deb"
   echo "*** Detected Distro is ${DEBTEST} ***"
   SUBTYPE=`lsb_release -a 2>&1 | grep Codename | grep -v "LSB" | awk '{print $2}'`
   echo "*** Detected flavor ${SUBTYPE} ***"
@@ -185,8 +195,10 @@ else
   exit 2
 fi
 
-ST2_CURL_TEST=`curl --output /dev/null --silent --fail ${ST2_COMMUNITY_INSTALLER}`
-if [ $? -ne 0 ]; then
+if ${PKG_TYPE}_is_installed st2 st2mistral st2web; then
+    echo 'StackStorm Community version is already installed.'
+    echo 'Proceeding with BWC Enterprise install ...'
+elif ! curl --output /dev/null --silent --fail ${ST2_COMMUNITY_INSTALLER}; then
     echo -e "Could not find file ${ST2_COMMUNITY_INSTALLER}."
     exit 2
 else
