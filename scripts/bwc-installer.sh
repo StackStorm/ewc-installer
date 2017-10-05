@@ -195,7 +195,7 @@ else
   exit 2
 fi
 
-if ${PKG_TYPE}_is_installed st2 st2mistral st2web; then
+if ${PKG_TYPE}_is_installed st2 st2mistral; then
     echo 'StackStorm Community version is already installed.'
     echo 'Proceeding with BWC Enterprise install ...'
 elif ! curl --output /dev/null --silent --fail ${ST2_COMMUNITY_INSTALLER}; then
