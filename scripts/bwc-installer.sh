@@ -144,12 +144,12 @@ get_version_branch() {
 
 # Check if .deb package(s) is installed
 deb_is_installed() {
-  dpkg --status $1 > /dev/null 2>&1
+  dpkg --status $@ > /dev/null 2>&1
 }
 
 # Check if .rpm package(s) is installed
 rpm_is_installed() {
-  rpm -q --quiet $1
+  rpm -q --quiet $@
 }
 
 if [[ "$VERSION" != '' ]]; then
