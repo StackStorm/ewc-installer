@@ -144,7 +144,10 @@ get_version_branch() {
 
 # Check if .deb package(s) is installed
 deb_is_installed() {
-  dpkg --status $@ > /dev/null 2>&1
+  expected_packages=$(echo $@ | awk '{print NF}')
+  installed_packages=$(dpkg-query -W -f='${Status}\n' $@ 2>/dev/null | grep -c 'install ok installed')
+
+  [[ "$expected_packages" == "$installed_packages" ]]
 }
 
 # Check if .rpm package(s) is installed
