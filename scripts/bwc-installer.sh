@@ -198,6 +198,7 @@ else
   exit 2
 fi
 
+
 if ${PKG_TYPE}_is_installed st2 st2mistral; then
     echo 'StackStorm Community version is already installed.'
     echo 'Proceeding with BWC Enterprise install ...'
@@ -222,8 +223,10 @@ else
 fi
 
 
-CURLTEST=`curl --output /dev/null --silent --fail ${BWC_OS_INSTALLER}`
-if [ $? -ne 0 ]; then
+if [ ! -z ${SUITE} ] && ${PKG_TYPE}_is_installed bwc-enterprise bwc-ui; then
+    echo 'BWC Enterprise is already installed.'
+    echo 'Proceeding with BWC Automation Suites install ...'
+elif ! curl --output /dev/null --silent --fail ${BWC_OS_INSTALLER}; then
     echo -e "Could not find file ${BWC_OS_INSTALLER}"
     exit 2
 else
