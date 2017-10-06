@@ -258,8 +258,8 @@ if [ ! -z ${SUITE} ]; then
       curl -Ss -o ${SUITE_INSTALLER_FILE} ${SUITE_INSTALLER}
       chmod +x ${SUITE_INSTALLER_FILE}
 
-      echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-      echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
+      echo "Running deployment script for BWC Automation Suites ${VERSION}..."
+      echo "OS specific script cmd: bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
       bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}
       if [ $? -ne 0 ]; then
         echo "BWC Automation Suites failed to install."
