@@ -198,6 +198,7 @@ else
   exit 2
 fi
 
+
 if ${PKG_TYPE}_is_installed st2 st2mistral; then
     echo 'StackStorm Community version is already installed.'
     echo 'Proceeding with BWC Enterprise install ...'
@@ -222,8 +223,10 @@ else
 fi
 
 
-CURLTEST=`curl --output /dev/null --silent --fail ${BWC_OS_INSTALLER}`
-if [ $? -ne 0 ]; then
+if [ ! -z ${SUITE} ] && ${PKG_TYPE}_is_installed bwc-enterprise bwc-ui; then
+    echo 'BWC Enterprise is already installed.'
+    echo 'Proceeding with BWC Automation Suites install ...'
+elif ! curl --output /dev/null --silent --fail ${BWC_OS_INSTALLER}; then
     echo -e "Could not find file ${BWC_OS_INSTALLER}"
     exit 2
 else
@@ -255,8 +258,8 @@ if [ ! -z ${SUITE} ]; then
       curl -Ss -o ${SUITE_INSTALLER_FILE} ${SUITE_INSTALLER}
       chmod +x ${SUITE_INSTALLER_FILE}
 
-      echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-      echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
+      echo "Running deployment script for BWC Automation Suites ${VERSION}..."
+      echo "OS specific script cmd: bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
       bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}
       if [ $? -ne 0 ]; then
         echo "BWC Automation Suites failed to install."
