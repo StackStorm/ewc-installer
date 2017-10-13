@@ -116,14 +116,35 @@ get_full_pkg_versions() {
   if [ "$VERSION" != '' ];
   then
 
-    local BWC_VER=$(repoquery --nvr --show-duplicates ${BWC_ENTERPRISE_PKG} | grep ${VERSION} | sort --version-sort | tail -n 1)
+    local BWC_VER=$(repoquery --nvr --show-duplicates ${BWC_ENTERPRISE_PKG} | grep -F bwc-enterprise-${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$BWC_VER" ]; then
       echo "Could not find requested version of ${BWC_ENTERPRISE_PKG}!!!"
       sudo repoquery --nvr --show-duplicates ${BWC_ENTERPRISE_PKG}
       exit 3
     fi
 
-    BWC_ENTERPRISE_PKG=${BWC_VER}
+    local ST2FLOW_VER=$(repoquery --nvr --show-duplicates st2flow | grep -F st2flow-${VERSION} | sort --version-sort | tail -n 1)
+    if [ -z "$ST2FLOW_VER" ]; then
+      echo "Could not find requested version of st2flow!!!"
+      sudo repoquery --nvr --show-duplicates st2flow
+      exit 3
+    fi
+
+    local ST2LDAP_VER=$(repoquery --nvr --show-duplicates st2-auth-ldap | grep -F st2-auth-ldap-${VERSION} | sort --version-sort | tail -n 1)
+    if [ -z "$ST2LDAP_VER" ]; then
+      echo "Could not find requested version of st2-auth-ldap!!!"
+      sudo repoquery --nvr --show-duplicates st2-auth-ldap
+      exit 3
+    fi
+
+    local BWCUI_VER=$(repoquery --nvr --show-duplicates bwc-ui | grep -F bwc-ui-${VERSION} | sort --version-sort | tail -n 1)
+    if [ -z "$BWCUI_VER" ]; then
+      echo "Could not find requested version of bwc-ui!!!"
+      sudo repoquery --nvr --show-duplicates bwc-ui
+      exit 3
+    fi
+
+    BWC_ENTERPRISE_PKG="${BWC_VER} ${ST2FLOW_VER} ${ST2LDAP_VER} ${BWCUI_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
     echo "${BWC_ENTERPRISE_PKG}"
