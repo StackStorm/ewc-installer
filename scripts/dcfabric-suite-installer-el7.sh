@@ -144,7 +144,7 @@ get_full_pkg_versions() {
     DCFABRIC_SUITE_VERSION="=${IPF_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
-    echo "${IPFABRIC_SUITE_PKG}"
+    echo "${DCFABRIC_SUITE_VERSION}"
     echo "##########################################################"
   fi
 }
