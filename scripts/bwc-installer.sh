@@ -7,6 +7,7 @@ ST2_COMMUNITY_INSTALLER='https://stackstorm.com/packages/install.sh'
 DEBTEST=`lsb_release -a 2> /dev/null | grep Distributor | awk '{print $3}'`
 RHTEST=`cat /etc/redhat-release 2> /dev/null | sed -e "s~\(.*\)release.*~\1~g"`
 VERSION=''
+SUITE_VERSION=''
 RELEASE='stable'
 REPO_TYPE=''
 ST2_PKG_VERSION=''
@@ -35,6 +36,10 @@ setup_args() {
       case $i in
           --suite=*)
           SUITE="${i#*=}"
+          shift
+          ;;
+          --suiteversion=*)
+          SUITE_VERSION="${i#*=}"
           shift
           ;;
           -v|--version=*)
@@ -243,6 +248,11 @@ else
       echo "Please contact support@brocade.com with installation logs if you have any questions."
       exit 2
     fi
+fi
+
+if [[ "$SUITE_VERSION" != '' ]]; then
+  get_version_branch $SUITE_VERSION
+  VERSION="--version=${SUITE_VERSION}"
 fi
 
 SUITE_INSTALLER_FILE='bwc-suite-installer.sh'
