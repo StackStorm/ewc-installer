@@ -141,7 +141,7 @@ get_full_pkg_versions() {
       exit 3
     fi
 
-   SUITE_VERSION="=${IPF_VER}"
+    SUITE_VERSION="=${IPF_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
     echo "${SUITE}${SUITE_VERSION}"
