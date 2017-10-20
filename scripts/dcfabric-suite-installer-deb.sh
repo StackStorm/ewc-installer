@@ -14,7 +14,7 @@ BRANCH='master'
 REPO_NAME='enterprise'
 
 SUITE='dcfabric-suite'
-DCFABRIC_SUITE_VERSION=''
+SUITE_VERSION=''
 
 NO_LICENSE_BANNER="
 LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
@@ -141,10 +141,10 @@ get_full_pkg_versions() {
       exit 3
     fi
 
-    DCFABRIC_SUITE_VERSION="=${IPF_VER}"
+   SUITE_VERSION="=${IPF_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
-    echo "${SUITE}${DCFABRIC_SUITE_VERSION}"
+    echo "${SUITE}${SUITE_VERSION}"
     echo "##########################################################"
   fi
 }
@@ -152,11 +152,16 @@ get_full_pkg_versions() {
 install_network_essentials_pack() {
   sudo apt-get install -y gcc
   st2 login $USERNAME -p $PASSWORD
-  st2 pack install network_essentials=${DCFABRIC_SUITE_VERSION}
+  if [ "$VERSION" != '' ];
+  then
+    st2 pack install network_essentials=${VERSION}
+  else
+    st2 pack install network_essentials
+  fi
 }
 
 install_ipfabric_automation_suite() {
-  sudo apt-get -y install ${SUITE}${DCFABRIC_SUITE_VERSION}
+  sudo apt-get -y install ${SUITE}${SUITE_VERSION}
 }
 
 setup_ipfabric_automation_suite() {
