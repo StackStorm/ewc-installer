@@ -22,6 +22,9 @@ SUITES_LIST=(dcfabric-suite) # Space separated list of names that should map to 
 # XXX: Once we have our S3 buckets set up, point these to public URLs.
 BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer"
 
+# Ensure logging directory exists
+sudo mkdir -p /var/log/st2
+
 NO_LICENSE_BANNER="
 LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
 Please visit http://www.brocade.com/en/products-services/network-automation/workflow-composer.html
@@ -147,6 +150,12 @@ get_version_branch() {
   fi
 }
 
+adddate() {
+  while IFS= read -r line; do
+    echo "$(date +%Y%m%dT%H%M%S%z) $line"
+  done
+}
+
 # Check if .deb package(s) is installed
 deb_is_installed() {
   expected_packages=$(echo $@ | awk '{print NF}')
@@ -241,16 +250,17 @@ else
 
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
     echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG}"
-    bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG}
-
-    if [ $? -ne 0 ]; then
+    TS=$(date +%Y%m%dT%H%M%S)
+    bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} 2>&1 | adddate | sudo tee /var/log/st2/bwc-install.${TS}.log
+    rc=${PIPESTATUS[0]}
+    if [ ${rc} -ne 0 ]; then
       echo "BWC Enterprise failed to install."
       echo "Please contact support@brocade.com with installation logs if you have any questions."
       exit 2
     fi
 fi
 
-if [[ "$SUITE_VERSION" != '' ]]; then
+if [[ "${SUITE_VERSION:-}" != '' ]]; then
   get_version_branch $SUITE_VERSION
   VERSION="--version=${SUITE_VERSION}"
 fi
@@ -270,8 +280,10 @@ if [ ! -z ${SUITE} ]; then
 
       echo "Running deployment script for BWC Automation Suites ${VERSION}..."
       echo "OS specific script cmd: bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
-      bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}
-      if [ $? -ne 0 ]; then
+      TS=$(date +%Y%m%dT%H%M%S)
+      bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE} 2>&1 | adddate | sudo tee /var/log/st2/bwc-suite-install.${TS}.log
+      rc=${PIPESTATUS[0]}
+      if [ ${rc} -ne 0 ]; then
         echo "BWC Automation Suites failed to install."
         echo "Please contact support@brocade.com with installation logs if you have any questions."
         exit 3
