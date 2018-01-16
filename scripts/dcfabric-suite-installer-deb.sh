@@ -136,7 +136,7 @@ setup_package_cloud_repo() {
 
 get_full_pkg_versions() {
   local IPF_VER=''
-  if [ -z "$SUITE_VERSION" ]; then
+  if [[ -z ${SUITE_VERSION:-} ]]; then
     IPF_VER=$(apt-cache show ${SUITE} | grep Version | awk '{print $2}' | sort --version-sort | tail -n 1)
   else
     IPF_VER=$(apt-cache show ${SUITE} | grep Version | awk '{print $2}' | grep $SUITE_VERSION | sort --version-sort | tail -n 1)

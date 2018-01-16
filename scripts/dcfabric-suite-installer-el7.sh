@@ -14,6 +14,7 @@ BRANCH='master'
 REPO_NAME='enterprise'
 
 SUITE='dcfabric-suite'
+SUITE_VERSION=''
 
 NO_LICENSE_BANNER="
 LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
@@ -135,7 +136,7 @@ setup_package_cloud_repo() {
 
 get_full_pkg_versions() {
   local IPF_VER=''
-  if [ -z "${SUITE_VERSION}" ]; then
+  if [[ -z ${SUITE_VERSION:-} ]]; then
     IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | sort --version-sort | tail -n 1)
   else
     IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | grep ${SUITE_VERSION} | sort --version-sort | tail -n 1)
