@@ -41,6 +41,10 @@ setup_args() {
           VERSION="${i#*=}"
           shift
           ;;
+          --suiteversion=*)
+          SUITE_VERSION="${i#*=}"
+          shift
+          ;;
           -s|--stable)
           RELEASE='stable'
           shift
@@ -73,13 +77,13 @@ setup_args() {
 
   hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
 
-  if [[ "$VERSION" != '' ]]; then
-    if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
-      echo "$VERSION does not match supported formats x.y.z or x.ydev"
+  if [[ "$SUITE_VERSION" != '' ]]; then
+    if [[ ! "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
+      echo "$SUITE_VERSION does not match supported formats x.y.z or x.ydev"
       exit 1
     fi
 
-    if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
+    if [[ "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
       echo "You're requesting a dev version! Switching to unstable!"
       RELEASE='unstable'
     fi
@@ -91,7 +95,7 @@ setup_args() {
   fi
 
   echo "########################################################"
-  echo "          Installing ${SUITE} $RELEASE $VERSION         "
+  echo "          Installing ${SUITE} $RELEASE $SUITE_VERSION   "
   echo "########################################################"
 
   if [ "$REPO_TYPE" == "staging" ]; then
@@ -130,9 +134,9 @@ setup_package_cloud_repo() {
 }
 
 get_full_pkg_versions() {
-  if [ "$VERSION" != '' ];
+  if [ "$SUITE_VERSION" != '' ];
   then
-    local IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | grep ${VERSION} | sort --version-sort | tail -n 1)
+    local IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | grep ${SUITE_VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$IPF_VER" ]; then
       echo "Could not find requested version of dcfabric-suite!!!"
       sudo repoquery --nvr --show-duplicates ${SUITE}
@@ -150,6 +154,7 @@ get_full_pkg_versions() {
 install_network_essentials_pack() {
   sudo yum -y install gcc
   st2 login $USERNAME -p $PASSWORD
+  # FIXME: Use a meaningful VERSION for network essentials
   if [ "$VERSION" != '' ];
   then
     st2 pack install network_essentials=${VERSION}

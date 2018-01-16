@@ -10,7 +10,6 @@ VERSION=''
 SUITE_VERSION=''
 RELEASE='stable'
 REPO_TYPE=''
-ST2_PKG_VERSION=''
 USERNAME=''
 PASSWORD=''
 BRANCH='master'
@@ -261,8 +260,7 @@ else
 fi
 
 if [[ "${SUITE_VERSION:-}" != '' ]]; then
-  get_version_branch $SUITE_VERSION
-  VERSION="--version=${SUITE_VERSION}"
+  SUITE_VERSION="--suiteversion=${SUITE_VERSION}"
 fi
 
 SUITE_INSTALLER_FILE='bwc-suite-installer.sh'
@@ -281,7 +279,7 @@ if [ ! -z ${SUITE} ]; then
       echo "Running deployment script for BWC Automation Suites ${VERSION}..."
       echo "OS specific script cmd: bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
       TS=$(date +%Y%m%dT%H%M%S)
-      bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE} 2>&1 | adddate | sudo tee /var/log/st2/bwc-suite-install.${TS}.log
+      bash ${SUITE_INSTALLER_FILE} ${VERSION} ${SUITE_VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE} 2>&1 | adddate | sudo tee /var/log/st2/bwc-suite-install.${TS}.log
       rc=${PIPESTATUS[0]}
       if [ ${rc} -ne 0 ]; then
         echo "BWC Automation Suites failed to install."

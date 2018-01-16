@@ -5,6 +5,7 @@ set -u
 DEBTEST=`lsb_release -a 2> /dev/null | grep Distributor | awk '{print $3}'`
 RHTEST=`cat /etc/redhat-release 2> /dev/null | sed -e "s~\(.*\)release.*~\1~g"`
 VERSION=''
+SUITE_VERSION=''
 RELEASE='stable'
 REPO_TYPE=''
 USERNAME=''
@@ -50,6 +51,10 @@ setup_args() {
           VERSION="${i#*=}"
           shift
           ;;
+          --suiteversion=*)
+          SUITE_VERSION="${i#*=}"
+          shift
+          ;;
           --user=*)
           USERNAME="${i#*=}"
           shift
@@ -91,6 +96,12 @@ setup_args() {
 }
 
 setup_args $@
+
+get_version_branch() {
+  if [[ "$RELEASE" == 'stable' ]]; then
+      BRANCH="v$(echo ${VERSION} | awk 'BEGIN {FS="."}; {print $1 "." $2}')"
+  fi
+}
 
 if [[ "$VERSION" != '' ]]; then
   get_version_branch $VERSION
@@ -137,6 +148,10 @@ fi
 
 hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
 
+if [[ "${SUITE_VERSION}" != '' ]]; then
+  SUITE_VERSION="--suiteversion=${SUITE_VERSION}"
+fi
+
 CURLTEST=`curl --output /dev/null --silent --fail ${SUITE_OS_INSTALLER}`
 if [ $? -ne 0 ]; then
     echo -e "Could not find file ${SUITE_OS_INSTALLER}"
@@ -147,6 +162,6 @@ else
     chmod +x ${SUITE_OS_INSTALLER_FILE}
 
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-    echo "OS specific script cmd: bash ${SUITE_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
-    bash ${SUITE_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
+    echo "OS specific script cmd: bash ${SUITE_OS_INSTALLER_FILE} ${SUITE_VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}"
+    bash ${SUITE_OS_INSTALLER_FILE} ${SUITE_VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
 fi
