@@ -14,6 +14,7 @@ BRANCH='master'
 REPO_NAME='enterprise'
 
 SUITE='dcfabric-suite'
+SUITE_VERSION=''
 
 NO_LICENSE_BANNER="
 LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
@@ -39,6 +40,10 @@ setup_args() {
       case $i in
           -v|--version=*)
           VERSION="${i#*=}"
+          shift
+          ;;
+          --suiteversion=*)
+          SUITE_VERSION="${i#*=}"
           shift
           ;;
           -s|--stable)
@@ -73,13 +78,13 @@ setup_args() {
 
   hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
 
-  if [[ "$VERSION" != '' ]]; then
-    if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
-      echo "$VERSION does not match supported formats x.y.z or x.ydev"
+  if [[ ! -z ${SUITE_VERSION:-} ]]; then
+    if [[ ! "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
+      echo "$SUITE_VERSION does not match supported formats x.y.z or x.ydev"
       exit 1
     fi
 
-    if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
+    if [[ "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
       echo "You're requesting a dev version! Switching to unstable!"
       RELEASE='unstable'
     fi
@@ -91,7 +96,7 @@ setup_args() {
   fi
 
   echo "########################################################"
-  echo "          Installing ${SUITE} $RELEASE $VERSION         "
+  echo "      Installing ${SUITE} $RELEASE ${SUITE_VERSION:-}   "
   echo "########################################################"
 
   if [ "$REPO_TYPE" == "staging" ]; then
@@ -130,30 +135,36 @@ setup_package_cloud_repo() {
 }
 
 get_full_pkg_versions() {
-  if [ "$VERSION" != '' ];
-  then
-    local IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | grep ${VERSION} | sort --version-sort | tail -n 1)
-    if [ -z "$IPF_VER" ]; then
-      echo "Could not find requested version of dcfabric-suite!!!"
-      sudo repoquery --nvr --show-duplicates ${SUITE}
-      exit 3
-    fi
-
-    SUITE=${IPF_VER}
-    echo "##########################################################"
-    echo "#### Following versions of packages will be installed ####"
-    echo "${SUITE}"
-    echo "##########################################################"
+  local IPF_VER=''
+  if [[ -z ${SUITE_VERSION:-} ]]; then
+    IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | sort --version-sort | tail -n 1)
+  else
+    IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | grep ${SUITE_VERSION} | sort --version-sort | tail -n 1)
   fi
+
+  if [ -z "$IPF_VER" ]; then
+    echo "Could not find requested version of dcfabric-suite!!!"
+    sudo repoquery --nvr --show-duplicates ${SUITE}
+    exit 3
+  fi
+
+  SUITE=${IPF_VER}
+  echo "##########################################################"
+  echo "#### Following versions of packages will be installed ####"
+  echo "${SUITE}"
+  echo "##########################################################"
 }
 
 install_network_essentials_pack() {
   sudo yum -y install gcc
   st2 login $USERNAME -p $PASSWORD
+  # FIXME: Use a meaningful VERSION for network_essentials
   if [ "$VERSION" != '' ];
   then
+    echo st2 pack install network_essentials=${VERSION}
     st2 pack install network_essentials=${VERSION}
   else
+    echo st2 pack install network_essentials
     st2 pack install network_essentials
   fi
 }
@@ -179,7 +190,7 @@ setup_ipfabric_automation_suite() {
   # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
   echo "Generating DB password for network-essentials postgres database"
   local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=****"
 
   local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
   ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "./${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"

@@ -42,6 +42,10 @@ setup_args() {
           VERSION="${i#*=}"
           shift
           ;;
+          --suiteversion=*)
+          SUITE_VERSION="${i#*=}"
+          shift
+          ;;
           -s|--stable)
           RELEASE=stable
           shift
@@ -74,13 +78,13 @@ setup_args() {
 
   hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
 
-  if [[ "$VERSION" != '' ]]; then
-    if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
-      echo "$VERSION does not match supported formats x.y.z or x.ydev"
+  if [[ ! -z ${SUITE_VERSION:-} ]]; then
+    if [[ ! "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ ! "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
+      echo "$SUITE_VERSION does not match supported formats x.y.z or x.ydev"
       exit 1
     fi
 
-    if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
+    if [[ "$SUITE_VERSION" =~ ^[0-9]+\.[0-9]+dev$ ]]; then
       echo "You're requesting a dev version! Switching to unstable!"
       RELEASE='unstable'
     fi
@@ -92,7 +96,7 @@ setup_args() {
   fi
 
   echo "########################################################"
-  echo "          Installing ${SUITE} $RELEASE $VERSION         "
+  echo "      Installing ${SUITE} $RELEASE ${SUITE_VERSION:-}   "
   echo "########################################################"
 
   if [ "$REPO_TYPE" == "staging" ]; then
@@ -109,7 +113,6 @@ setup_args() {
     echo "########################################################"
     REPO_NAME="${REPO_NAME}-unstable"
   fi
-
 
   if [[ "$USERNAME" = '' || "$PASSWORD" = '' ]]; then
     echo "This script requires Brocade Workflow Composer credentials (Username/Password) to run."
@@ -132,35 +135,42 @@ setup_package_cloud_repo() {
 }
 
 get_full_pkg_versions() {
-  if [ "$VERSION" != '' ];
-  then
-    local IPF_VER=$(apt-cache show ${SUITE} | grep Version | awk '{print $2}' | grep $VERSION | sort --version-sort | tail -n 1)
-    if [ -z "$IPF_VER" ]; then
-      echo "Could not find requested version of ${SUITE}!!!"
-      sudo apt-cache policy ${SUITE}
-      exit 3
-    fi
-
-   SUITE_VERSION="=${IPF_VER}"
-    echo "##########################################################"
-    echo "#### Following versions of packages will be installed ####"
-    echo "${SUITE}${SUITE_VERSION}"
-    echo "##########################################################"
+  local IPF_VER=''
+  if [[ -z ${SUITE_VERSION:-} ]]; then
+    IPF_VER=$(apt-cache show ${SUITE} | grep Version | awk '{print $2}' | sort --version-sort | tail -n 1)
+  else
+    IPF_VER=$(apt-cache show ${SUITE} | grep Version | awk '{print $2}' | grep $SUITE_VERSION | sort --version-sort | tail -n 1)
   fi
+
+  if [ -z "$IPF_VER" ]; then
+    echo "Could not find requested version of ${SUITE}!!!"
+    sudo apt-cache policy ${SUITE}
+    exit 3
+  fi
+
+  SUITE_VERSION="=${IPF_VER}"
+  echo "##########################################################"
+  echo "#### Following versions of packages will be installed ####"
+  echo "${SUITE}${SUITE_VERSION}"
+  echo "##########################################################"
 }
 
 install_network_essentials_pack() {
   sudo apt-get install -y gcc
   st2 login $USERNAME -p $PASSWORD
+  # FIXME: Use a meaningful VERSION for network_essentials
   if [ "$VERSION" != '' ];
   then
+    echo st2 pack install network_essentials=${VERSION}
     st2 pack install network_essentials=${VERSION}
   else
+    echo st2 pack install network_essentials
     st2 pack install network_essentials
   fi
 }
 
 install_ipfabric_automation_suite() {
+  echo sudo apt-get -y install ${SUITE}${SUITE_VERSION}
   sudo apt-get -y install ${SUITE}${SUITE_VERSION}
 }
 
@@ -181,7 +191,7 @@ setup_ipfabric_automation_suite() {
   # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
   echo "Generating DB password for network-essentials postgres database"
   local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=****"
 
   local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
   ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "./${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
