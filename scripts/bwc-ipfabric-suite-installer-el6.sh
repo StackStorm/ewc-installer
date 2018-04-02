@@ -168,7 +168,7 @@ setup_ipfabric_automation_suite() {
   # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
   echo "Generating DB password for bwc-topology postgres database"
   local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"
+  echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=****"
 
   local ST2_TOKEN=$(st2 auth ${USERNAME} -p ${PASSWORD} -t)
   ST2_AUTH_TOKEN=${ST2_TOKEN} bash -c "./${IPFABRIC_SETUP_FILE} --bwc-db-password=${DB_PASSWORD}"

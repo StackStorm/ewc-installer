@@ -120,7 +120,7 @@ setup_args() {
     echo "You can use \"--user=<CHANGEME>\" and \"--password=<CHANGEME>\" to override following default st2 credentials."
     SLEEP_TIME=10
     echo "Username: ${USERNAME}"
-    echo "Password: ${PASSWORD}"
+    echo "Password: ****"
     echo "Sleeping for ${SLEEP_TIME} seconds if you want to Ctrl + C now..."
     sleep ${SLEEP_TIME}
     echo "Resorting to default username and password... You have an option to change password later!"
@@ -221,7 +221,7 @@ else
     chmod +x ${ST2_INSTALLER_FILE}
 
     echo "Running deployment script for StackStorm Community Edition ${VERSION}..."
-    echo "OS specific script cmd: bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}"
+    echo "OS specific script cmd: bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} --password=****"
     bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
     if [ $? -ne 0 ]; then
       echo "StackStorm community version failed to install."
@@ -244,7 +244,7 @@ else
     chmod +x ${BWC_OS_INSTALLER_FILE}
 
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-    echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG}"
+    echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} --password=**** --license=****"
     TS=$(date +%Y%m%dT%H%M%S)
     bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} 2>&1 | adddate | sudo tee /var/log/st2/bwc-install.${TS}.log
     rc=${PIPESTATUS[0]}
@@ -273,7 +273,7 @@ if [ ! -z ${SUITE} ]; then
       chmod +x ${SUITE_INSTALLER_FILE}
 
       echo "Running deployment script for BWC Automation Suites ${VERSION}..."
-      echo "OS specific script cmd: bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE}"
+      echo "OS specific script cmd: bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} --password=**** --license=**** ${SUITE}"
       TS=$(date +%Y%m%dT%H%M%S)
       bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE} 2>&1 | adddate | sudo tee /var/log/st2/bwc-suite-install.${TS}.log
       rc=${PIPESTATUS[0]}
