@@ -162,6 +162,6 @@ else
     chmod +x ${SUITE_OS_INSTALLER_FILE}
 
     echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
-    echo "OS specific script cmd: bash ${SUITE_OS_INSTALLER_FILE} ${SUITE_VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}"
+    echo "OS specific script cmd: bash ${SUITE_OS_INSTALLER_FILE} ${SUITE_VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} --password=**** --license=****"
     bash ${SUITE_OS_INSTALLER_FILE} ${SUITE_VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
 fi
