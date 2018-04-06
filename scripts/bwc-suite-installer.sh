@@ -84,7 +84,7 @@ setup_args() {
   fi
 
   if [[ "$USERNAME" = '' || "$PASSWORD" = '' ]]; then
-    echo "This script requires Brocade Workflow Composer credentials (Username/Password) to run."
+    echo "This script requires Extreme Workflow Composer credentials (Username/Password) to run."
     echo "Please re-run script with --user=<USER> --password=<PASSWORD> arguments."
     exit 1
   fi
@@ -146,7 +146,7 @@ else
     curl -Ss -o ${SUITE_OS_INSTALLER_FILE} ${SUITE_OS_INSTALLER}
     chmod +x ${SUITE_OS_INSTALLER_FILE}
 
-    echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
+    echo "Running deployment script for Extreme Workflow Composer ${VERSION}..."
     echo "OS specific script cmd: bash ${SUITE_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} --password=**** --license=****"
     bash ${SUITE_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY}
 fi
