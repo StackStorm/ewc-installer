@@ -17,9 +17,9 @@ SUITE='dcfabric-suite'
 SUITE_VERSION=''
 
 NO_LICENSE_BANNER="
-LICENSE KEY not provided. You'll need a license key to install Extreme Workflow Composer (BWC).
+LICENSE KEY not provided. You'll need a license key to install Extreme Workflow Composer (EWC).
 Please visit https://www.extremenetworks.com/product/workflow-composer/
-to purchase or trial BWC.
+to purchase or trial EWC.
 
 For obtaining a subscription license, please contact us at ewc-team@extremenetworks.com 
 "
