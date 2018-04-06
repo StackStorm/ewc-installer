@@ -16,11 +16,11 @@ REPO_NAME='enterprise'
 SUITE='bwc-ipfabric-suite'
 
 NO_LICENSE_BANNER="
-LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
-Please visit http://www.brocade.com/en/products-services/network-automation/workflow-composer.html
-to purchase or trial BWC.
+LICENSE KEY not provided. You'll need a license key to install Extreme Workflow Composer (EWC).
+Please visit https://www.extremenetworks.com/product/workflow-composer/
+to purchase or trial EWC.
 
-Please contact sales@brocade.com if you have any questions.
+For obtaining a subscription license, please contact us at ewc-team@extremenetworks.com
 "
 
 # XXX: Once we have our S3 buckets set up, point these to public URLs.
@@ -110,7 +110,7 @@ setup_args() {
   fi
 
   if [[ "$USERNAME" = '' || "$PASSWORD" = '' ]]; then
-    echo "This script requires Brocade Workflow Composer credentials (Username/Password) to run."
+    echo "This script requires Extreme Workflow Composer credentials (Username/Password) to run."
     echo "Please re-run script with --user=<USER> --password=<PASSWORD> arguments."
     exit 1
   fi
@@ -123,7 +123,7 @@ setup_package_cloud_repo() {
 
     LICENSE: ${LICENSE_KEY} not valid.
 
-    Please contact support@Brocade.com. Please include the SKU and the invalid license key in the email.
+    Please contact support@extremenetworks.com. Please include the SKU and the invalid license key in the email.
   "
   curl --output /dev/null --silent --fail ${PKG_CLOUD_URL} || (printf "${ERROR_MSG}\n\n" && exit 1)
   curl -s ${PKG_CLOUD_URL} | sudo bash
@@ -157,7 +157,7 @@ setup_ipfabric_automation_suite() {
   ERROR_MSG="
     Cannot find ipfabric setup script ${IPFABRIC_SETUP_SCRIPT}.
 
-    Installation will abort now. Please contact support@Brocade.com with this error.
+    Installation will abort now. Please contact support@extremenetworks.com with this error.
     Please include SKU and the error message in the email.
   "
   curl --output /dev/null --silent --head --fail ${IPFABRIC_SETUP_SCRIPT} || (printf "\n\n${ERROR_MSG}\n\n" && exit 1)
@@ -165,7 +165,7 @@ setup_ipfabric_automation_suite() {
   curl -Ss -o ${IPFABRIC_SETUP_FILE} ${IPFABRIC_SETUP_SCRIPT}
   chmod +x ${IPFABRIC_SETUP_FILE}
 
-  # echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
+  # echo "Running deployment script for Extreme Workflow Composer ${VERSION}..."
   echo "Generating DB password for bwc-topology postgres database"
   local DB_PASSWORD=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
   echo "OS specific script cmd: bash ${IPFABRIC_SETUP_FILE} --bwc-db-password=****"
@@ -189,10 +189,10 @@ EOF
   echo "Don't forget to dive into our documentation! Here are some resources"
   echo "for you:"
   echo ""
-  echo "* Documentation  - https://bwc-docs.brocade.com/solutions/ipfabric/index.html"
-  echo "* Support        - support@brocade.com"
+  echo "* Documentation  - https://ewc-docs.extremenetworks.com/solutions/ipfabric/index.html"
+  echo "* Support        - support@extremenetworks.com"
   echo ""
-  echo "Thanks for installing Brocade Workflow Composer and the IP Fabric suite!"
+  echo "Thanks for installing Extreme Workflow Composer and the IP Fabric suite!"
 }
 
 trap 'fail' EXIT
