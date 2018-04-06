@@ -25,11 +25,11 @@ BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer"
 sudo mkdir -p /var/log/st2
 
 NO_LICENSE_BANNER="
-LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
-Please visit http://www.brocade.com/en/products-services/network-automation/workflow-composer.html
-to purchase or trial BWC.
+LICENSE KEY not provided. You'll need a license key to install Extreme Workflow Composer (EWC).
+Please visit  https://www.extremenetworks.com/product/workflow-composer/
+to purchase or trial EWC.
 
-Please contact sales@brocade.com if you have any questions.
+For obtaining a subscription license, please contact us at ewc-team@extremenetworks.com
 "
 
 setup_args() {
@@ -109,7 +109,7 @@ setup_args() {
     echo -e "
       LICENSE: ${LICENSE_KEY} not valid.
 
-      Please contact support@brocade.com. Please include the SKU and the invalid license key in the email.
+      Please contact support@extremenetworks.com. Please include the SKU and the invalid license key in the email.
     "
     exit 2
   fi
@@ -210,7 +210,7 @@ fi
 
 if ${PKG_TYPE}_is_installed st2 st2mistral; then
     echo 'StackStorm Community version is already installed.'
-    echo 'Proceeding with BWC Enterprise install ...'
+    echo 'Proceeding with EWC Enterprise install ...'
 elif ! curl --output /dev/null --silent --fail ${ST2_COMMUNITY_INSTALLER}; then
     echo -e "Could not find file ${ST2_COMMUNITY_INSTALLER}."
     exit 2
@@ -225,7 +225,7 @@ else
     bash ${ST2_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD}
     if [ $? -ne 0 ]; then
       echo "StackStorm community version failed to install."
-      echo "Please contact support@brocade.com with installation logs if you have any questions."
+      echo "Please contact support@extremenetworks.com with installation logs if you have any questions."
       exit 1
     fi
     echo "StackStorm Community version installed successfully."
@@ -233,8 +233,8 @@ fi
 
 
 if [ ! -z ${SUITE} ] && ${PKG_TYPE}_is_installed bwc-enterprise bwc-ui; then
-    echo 'BWC Enterprise is already installed.'
-    echo 'Proceeding with BWC Automation Suites install ...'
+    echo 'EWC Enterprise is already installed.'
+    echo 'Proceeding with EWC Automation Suites install ...'
 elif ! curl --output /dev/null --silent --fail ${BWC_OS_INSTALLER}; then
     echo -e "Could not find file ${BWC_OS_INSTALLER}"
     exit 2
@@ -243,14 +243,14 @@ else
     curl -Ss -o ${BWC_OS_INSTALLER_FILE} ${BWC_OS_INSTALLER}
     chmod +x ${BWC_OS_INSTALLER_FILE}
 
-    echo "Running deployment script for Brocade Workflow Composer ${VERSION}..."
+    echo "Running deployment script for Extreme Workflow Composer ${VERSION}..."
     echo "OS specific script cmd: bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} --password=**** --license=****"
     TS=$(date +%Y%m%dT%H%M%S)
     bash ${BWC_OS_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} 2>&1 | adddate | sudo tee /var/log/st2/bwc-install.${TS}.log
     rc=${PIPESTATUS[0]}
     if [ ${rc} -ne 0 ]; then
-      echo "BWC Enterprise failed to install."
-      echo "Please contact support@brocade.com with installation logs if you have any questions."
+      echo "EWC Enterprise failed to install."
+      echo "Please contact support@extremenetworks.com with installation logs if you have any questions."
       exit 2
     fi
 fi
@@ -272,14 +272,14 @@ if [ ! -z ${SUITE} ]; then
       curl -Ss -o ${SUITE_INSTALLER_FILE} ${SUITE_INSTALLER}
       chmod +x ${SUITE_INSTALLER_FILE}
 
-      echo "Running deployment script for BWC Automation Suites ${VERSION}..."
+      echo "Running deployment script for EWC Automation Suites ${VERSION}..."
       echo "OS specific script cmd: bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} --password=**** --license=**** ${SUITE}"
       TS=$(date +%Y%m%dT%H%M%S)
       bash ${SUITE_INSTALLER_FILE} ${VERSION} ${RELEASE} ${REPO_TYPE} ${USERNAME} ${PASSWORD} ${LICENSE_KEY_ARG} ${SUITE} 2>&1 | adddate | sudo tee /var/log/st2/bwc-suite-install.${TS}.log
       rc=${PIPESTATUS[0]}
       if [ ${rc} -ne 0 ]; then
-        echo "BWC Automation Suites failed to install."
-        echo "Please contact support@brocade.com with installation logs if you have any questions."
+        echo "EWC Automation Suites failed to install."
+        echo "Please contact support@extremenetworks.com with installation logs if you have any questions."
         exit 3
       fi
   fi
