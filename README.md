@@ -1,13 +1,13 @@
 # bwc-installer
 
-Installation scripts for Brocade Workflow Composer (BWC). 
+Installation scripts for Extreme Workflow Composer (BWC). 
 
-To trial or purchase the product, please visit [BWC product page](http://www.brocade.com/en/products-services/network-automation/workflow-composer.html).
+To trial or purchase the product, please visit the [EWC product page](https://www.extremenetworks.com/product/workflow-composer).
 
-Product documentation is available at [bwc-docs.brocade.com](https://bwc-docs.brocade.com). 
+Product documentation is available at [ewc-docs.extremenetworks.com](https://ewc-docs.extremenetworks.com). 
 
 ## Contact
 
-Sales: sales@brocade.com
-Support: support@brocade.com
-StackStorm community: https://StackStorm-community.slack.com; [Register](https://stackstorm.com/community-signup)
+Sales: sales@stackstorm.com
+Support: support@extremenetworks.com
+StackStorm forum: https://forum.stackstorm.com
