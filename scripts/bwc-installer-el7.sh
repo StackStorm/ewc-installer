@@ -8,11 +8,11 @@ REPO_TYPE=''
 LICENSE_KEY=''
 
 NO_LICENSE_BANNER="
-LICENSE KEY not provided. You'll need a license key to install Brocade Workflow Composer (BWC).
-Please visit http://www.brocade.com/en/products-services/network-automation/workflow-composer.html
-to purchase or trial BWC.
+LICENSE KEY not provided. You'll need a license key to install Extreme Workflow Composer (EWC).
+Please visit https://www.extremenetworks.com/product/workflow-composer/
+to purchase or trial EWC.
 
-Please contact sales@brocade.com if you have any questions.
+For obtaining a subscription license, please contact us at ewc-team@extremenetworks.com
 "
 
 BWC_ENTERPRISE_PKG='bwc-enterprise'
@@ -80,7 +80,7 @@ setup_args() {
   fi
 
   echo "########################################################"
-  echo "        Installing BWC Enterprise $RELEASE $VERSION     "
+  echo "        Installing EWC Enterprise $RELEASE $VERSION     "
   echo "########################################################"
 
   if [ "$REPO_TYPE" == "staging" ]; then
@@ -106,7 +106,7 @@ setup_package_cloud_repo() {
 
     LICENSE: ${LICENSE_KEY} not valid.
 
-    Please contact support@Brocade.com. Please include the SKU and the invalid license key in the email.
+    Please contact support@extremenetworks.com. Please include the SKU and the invalid license key in the email.
   "
   curl --output /dev/null --silent --fail ${PKG_CLOUD_URL} || (printf "${ERROR_MSG}\n\n" && exit 1)
   curl -s ${PKG_CLOUD_URL} | sudo bash
@@ -152,8 +152,8 @@ get_full_pkg_versions() {
   fi
 }
 
-install_bwc_enterprise() {
-  # Install BWC
+install_enterprise() {
+  # Install EWC
   sudo yum -y install ${BWC_ENTERPRISE_PKG}
 }
 
@@ -190,28 +190,27 @@ EOL
 ok_message() {
 
 cat << "EOF"
-                                 )        )
-   (    (  (        (         ( /(     ( /(
- ( )\   )\))(   '   )\        )\())    )\())
- )((_) ((_)()\ )  (((_)      ((_)\   |((_)\
-((_)_  _(())\_)() )\___        ((_)  |_ ((_)
- | _ ) \ \((_)/ /((/ __|      / _ \  | |/ /
- | _ \  \ \/\/ /  | (__      | (_) |   ' <
- |___/   \_/\_/    \___|      \___/   _|\_\
+     (  (       (         ( /(   ( /(
+ (   )\))(   '  )\        )\())  )\())
+ )\ ((_)()\ ) (((_)      ((_)\| ((_)\
+((_)_(())\_)())\___        ((_)  _((_)
+| __\ \((_)/ ((/ __|      / _ \  |/ /
+| _| \ \/\/ / | (__      | (_) | ' <
+|___| \_/\_/   \___|      \___/_ |\_\
 
 EOF
 
-  echo " BWC is installed and ready to use."
+  echo " EWC is installed and ready to use."
   echo ""
   echo "Head to https://YOUR_HOST_IP/ to access the WebUI"
   echo ""
   echo "Don't forget to dive into our documentation! Here are some resources"
   echo "for you:"
   echo ""
-  echo "* Documentation  - https://bwc-docs.brocade.com"
-  echo "* Support        - support@brocade.com"
+  echo "* Documentation  - https://ewc-docs.extremenetworks.com"
+  echo "* Support        - support@extremenetworks.com"
   echo ""
-  echo "Thanks for installing Brocade Workflow Composer!"
+  echo "Thanks for installing Extreme Workflow Composer!"
 }
 
 trap 'fail' EXIT
@@ -219,7 +218,7 @@ trap 'fail' EXIT
 STEP="Setup args" && setup_args $@
 STEP="Setup packagecloud repo" && setup_package_cloud_repo
 STEP="Get package versions" && get_full_pkg_versions
-STEP="Install BWC enterprise" && install_bwc_enterprise
+STEP="Install Enterprise" && install_enterprise
 STEP="Enable and configure RBAC" && enable_and_configure_rbac
 trap - EXIT
 
