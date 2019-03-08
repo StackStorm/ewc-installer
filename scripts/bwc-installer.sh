@@ -104,7 +104,7 @@ setup_args() {
   hash curl 2>/dev/null || { echo >&2 "'curl' is not installed. Aborting."; exit 1; }
 
   # Check if provided license key is valid
-  LICENSE_CHECK=`curl --head --silent --output /dev/null --fail --retry 3 "https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.deb.sh"`
+  LICENSE_CHECK=`curl --silent --output /dev/null --fail --retry 3 "https://${LICENSE_KEY}:@packagecloud.io/install/repositories/StackStorm/${REPO_NAME}/script.deb.sh"`
   if [ $? -ne 0 ]; then
     echo -e "
       LICENSE: ${LICENSE_KEY} not valid.
