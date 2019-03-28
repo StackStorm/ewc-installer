@@ -137,6 +137,13 @@ get_full_pkg_versions() {
       exit 3
     fi
 
+    local ST2_RBAC_BACKEND_VER=$(repoquery --nvr --show-duplicates st2-rbac-backend | grep -F st2-rbac-backend-${VERSION} | sort --version-sort | tail -n 1)
+    if [ -z "$ST2_RBAC_BACKEND_VER" ]; then
+      echo "Could not find requested version of st2-rbac-backend!!!"
+      sudo repoquery --nvr --show-duplicates st2-rbac-backend
+      exit 3
+    fi
+
     local BWCUI_VER=$(repoquery --nvr --show-duplicates bwc-ui | grep -F bwc-ui-${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$BWCUI_VER" ]; then
       echo "Could not find requested version of bwc-ui!!!"
@@ -144,7 +151,7 @@ get_full_pkg_versions() {
       exit 3
     fi
 
-    BWC_ENTERPRISE_PKG="${BWC_VER} ${ST2FLOW_VER} ${ST2LDAP_VER} ${BWCUI_VER}"
+    BWC_ENTERPRISE_PKG="${BWC_VER} ${ST2FLOW_VER} ${ST2LDAP_VER} ${ST2_RBAC_BACKEND_VER} ${BWCUI_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
     echo "${BWC_ENTERPRISE_PKG}"
@@ -161,6 +168,7 @@ enable_and_configure_rbac() {
   # Enable RBAC
   sudo yum -y install crudini
   sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
+  sudo crudini --set /etc/st2/st2.conf rbac backend 'enterprise'
 
   # Write role assignment for admin user
   ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${USERNAME}.yaml"
