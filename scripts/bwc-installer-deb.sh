@@ -97,6 +97,14 @@ setup_args() {
     echo "########################################################"
     REPO_NAME="${REPO_NAME}-unstable"
   fi
+
+  # NOTE: st2-rbac-backend package has been introduced in v3.0.0(dev) so we only try to install
+  # it if version >= 3.0.0[dev]
+  if [[ "$VERSION" =~ ^[3-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$VERSION" =~ ^[3-9]+\.[0-9]+dev$ ]]; then
+    IS_V300_OR_ABOVE="true"
+  else
+    IS_V300_OR_ABOVE="false"
+  fi
 }
 
 setup_package_cloud_repo() {
@@ -137,11 +145,14 @@ get_full_pkg_versions() {
       exit 3
     fi
 
-    local ST2_RBAC_BACKEND_VER=$(apt-cache show st2-rbac-backend | grep Version | awk '{print $2}' | grep ^${VERSION//./\\.} | sort --version-sort | tail -n 1)
-    if [ -z "$ST2_RBAC_BACKEND_VER" ]; then
-      echo "Could not find requested version of st2-rbac-backend!!!"
-      sudo apt-cache policy st2-rbac-backend
-      exit 3
+    # NOTE: This package has been introduced in v3.0.0(dev) version
+    if [ "${IS_V300_OR_ABOVE}" = "true" ]; then
+      local ST2_RBAC_BACKEND_VER=$(apt-cache show st2-rbac-backend | grep Version | awk '{print $2}' | grep ^${VERSION//./\\.} | sort --version-sort | tail -n 1)
+      if [ -z "$ST2_RBAC_BACKEND_VER" ]; then
+        echo "Could not find requested version of st2-rbac-backend!!!"
+        sudo apt-cache policy st2-rbac-backend
+        exit 3
+      fi
     fi
 
     local BWCUI_VER=$(apt-cache show bwc-ui | grep Version | awk '{print $2}' | grep ^${VERSION//./\\.} | sort --version-sort | tail -n 1)
@@ -154,14 +165,18 @@ get_full_pkg_versions() {
     BWC_ENTERPRISE_VERSION="=${BWC_VER}"
     ST2FLOW_PKG_VERSION="=${ST2FLOW_VER}"
     ST2LDAP_PKG_VERSION="=${ST2LDAP_VER}"
-    ST2_RBAC_BACKEND_PKG_VERSION="=${ST2_RBAC_BACKEND_VER}"
+    if [ "${IS_V300_OR_ABOVE}" = "true" ]; then
+        ST2_RBAC_BACKEND_PKG_VERSION="=${ST2_RBAC_BACKEND_VER}"
+    fi
     BWCUI_PKG_VERSION="=${BWCUI_VER}"
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
     echo "bwc-enterprise${BWC_ENTERPRISE_VERSION}"
     echo "st2flow${ST2FLOW_PKG_VERSION}"
     echo "st2-auth-ldap${ST2LDAP_PKG_VERSION}"
-    echo "st2-rbac-backend${ST2_RBAC_BACKEND_PKG_VERSION}"
+    if [ "${IS_V300_OR_ABOVE}" = "true" ]; then
+        echo "st2-rbac-backend${ST2_RBAC_BACKEND_PKG_VERSION}"
+    fi
     echo "bwc-ui${BWCUI_PKG_VERSION}"
     echo "##########################################################"
   fi
@@ -172,7 +187,11 @@ install_enterprise() {
   sudo apt-get update
   if [ "$VERSION" != '' ];
   then
-    sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION} st2flow${ST2FLOW_PKG_VERSION} st2-auth-ldap${ST2LDAP_PKG_VERSION} st2-rbac-backend${ST2_RBAC_BACKEND_PKG_VERSION} bwc-ui${BWCUI_PKG_VERSION}
+    if [ "${IS_V300_OR_ABOVE}" = "true" ]; then
+        sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION} st2flow${ST2FLOW_PKG_VERSION} st2-auth-ldap${ST2LDAP_PKG_VERSION} st2-rbac-backend${ST2_RBAC_BACKEND_PKG_VERSION} bwc-ui${BWCUI_PKG_VERSION}
+    else
+        sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION} st2flow${ST2FLOW_PKG_VERSION} st2-auth-ldap${ST2LDAP_PKG_VERSION} bwc-ui${BWCUI_PKG_VERSION}
+    fi
   else
     sudo apt-get -y install bwc-enterprise${BWC_ENTERPRISE_VERSION}
   fi
