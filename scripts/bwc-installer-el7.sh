@@ -97,6 +97,14 @@ setup_args() {
     echo "########################################################"
     REPO_NAME="${REPO_NAME}-unstable"
   fi
+
+  # NOTE: st2-rbac-backend package has been introduced in v3.0.0(dev) so we only try to install
+  # it if version >= 3.0.0[dev]
+  if [[ "$VERSION" =~ ^[3-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$VERSION" =~ ^[3-9]+\.[0-9]+dev$ ]]; then
+    IS_V300_OR_ABOVE="true"
+  else
+    IS_V300_OR_ABOVE="false"
+  fi
 }
 
 setup_package_cloud_repo() {
@@ -137,6 +145,16 @@ get_full_pkg_versions() {
       exit 3
     fi
 
+    # NOTE: This package has been introduced in v3.0.0(dev) version
+    if [ "${IS_V300_OR_ABOVE}" = "true" ]; then
+      local ST2_RBAC_BACKEND_VER=$(repoquery --nvr --show-duplicates st2-rbac-backend | grep -F st2-rbac-backend-${VERSION} | sort --version-sort | tail -n 1)
+      if [ -z "$ST2_RBAC_BACKEND_VER" ]; then
+        echo "Could not find requested version of st2-rbac-backend!!!"
+        sudo repoquery --nvr --show-duplicates st2-rbac-backend
+        exit 3
+      fi
+    fi
+
     local BWCUI_VER=$(repoquery --nvr --show-duplicates bwc-ui | grep -F bwc-ui-${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$BWCUI_VER" ]; then
       echo "Could not find requested version of bwc-ui!!!"
@@ -144,7 +162,12 @@ get_full_pkg_versions() {
       exit 3
     fi
 
-    BWC_ENTERPRISE_PKG="${BWC_VER} ${ST2FLOW_VER} ${ST2LDAP_VER} ${BWCUI_VER}"
+    if [ "${IS_V300_OR_ABOVE}" = "true" ]; then
+      BWC_ENTERPRISE_PKG="${BWC_VER} ${ST2FLOW_VER} ${ST2LDAP_VER} ${ST2_RBAC_BACKEND_VER} ${BWCUI_VER}"
+    else
+      BWC_ENTERPRISE_PKG="${BWC_VER} ${ST2FLOW_VER} ${ST2LDAP_VER} ${BWCUI_VER}"
+    fi
+
     echo "##########################################################"
     echo "#### Following versions of packages will be installed ####"
     echo "${BWC_ENTERPRISE_PKG}"
@@ -161,6 +184,7 @@ enable_and_configure_rbac() {
   # Enable RBAC
   sudo yum -y install crudini
   sudo crudini --set /etc/st2/st2.conf rbac enable 'True'
+  sudo crudini --set /etc/st2/st2.conf rbac backend 'enterprise'
 
   # Write role assignment for admin user
   ROLE_ASSIGNMENT_FILE="/opt/stackstorm/rbac/assignments/${USERNAME}.yaml"
