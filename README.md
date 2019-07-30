@@ -1,4 +1,4 @@
-# bwc-installer
+# EWC-installer
 
 Installation scripts for Extreme Workflow Composer (BWC). 
 

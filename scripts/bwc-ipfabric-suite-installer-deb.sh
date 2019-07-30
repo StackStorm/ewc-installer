@@ -25,7 +25,7 @@ For obtaining a subscription license, please contact us at ewc-team@extremenetwo
 "
 
 # XXX: Once we have our S3 buckets set up, point these to public URLs.
-SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/StackStorm/bwc-installer/${BRANCH}/scripts/setup"
+SETUP_SCRIPTS_BASE_PATH="https://raw.githubusercontent.com/extremenetworks/ewc-installer/${BRANCH}/scripts/setup"
 
 fail() {
   echo "############### ERROR ###############"
