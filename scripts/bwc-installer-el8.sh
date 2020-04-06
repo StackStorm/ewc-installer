@@ -124,41 +124,41 @@ get_full_pkg_versions() {
   if [ "$VERSION" != '' ];
   then
 
-    local BWC_VER=$(repoquery --nvr --show-duplicates ${BWC_ENTERPRISE_PKG} | grep -F bwc-enterprise-${VERSION} | sort --version-sort | tail -n 1)
+    local BWC_VER=$(repoquery -y --nvr --show-duplicates ${BWC_ENTERPRISE_PKG} | grep -F bwc-enterprise-${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$BWC_VER" ]; then
       echo "Could not find requested version of ${BWC_ENTERPRISE_PKG}!!!"
-      sudo repoquery --nvr --show-duplicates ${BWC_ENTERPRISE_PKG}
+      sudo repoquery -y --nvr --show-duplicates ${BWC_ENTERPRISE_PKG}
       exit 3
     fi
 
-    local ST2FLOW_VER=$(repoquery --nvr --show-duplicates st2flow | grep -F st2flow-${VERSION} | sort --version-sort | tail -n 1)
+    local ST2FLOW_VER=$(repoquery -y --nvr --show-duplicates st2flow | grep -F st2flow-${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$ST2FLOW_VER" ]; then
       echo "Could not find requested version of st2flow!!!"
-      sudo repoquery --nvr --show-duplicates st2flow
+      sudo repoquery -y --nvr --show-duplicates st2flow
       exit 3
     fi
 
-    local ST2LDAP_VER=$(repoquery --nvr --show-duplicates st2-auth-ldap | grep -F st2-auth-ldap-${VERSION} | sort --version-sort | tail -n 1)
+    local ST2LDAP_VER=$(repoquery -y --nvr --show-duplicates st2-auth-ldap | grep -F st2-auth-ldap-${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$ST2LDAP_VER" ]; then
       echo "Could not find requested version of st2-auth-ldap!!!"
-      sudo repoquery --nvr --show-duplicates st2-auth-ldap
+      sudo repoquery -y --nvr --show-duplicates st2-auth-ldap
       exit 3
     fi
 
     # NOTE: This package has been introduced in v3.0.0(dev) version
     if [ "${IS_V300_OR_ABOVE}" = "true" ]; then
-      local ST2_RBAC_BACKEND_VER=$(repoquery --nvr --show-duplicates st2-rbac-backend | grep -F st2-rbac-backend-${VERSION} | sort --version-sort | tail -n 1)
+      local ST2_RBAC_BACKEND_VER=$(repoquery -y --nvr --show-duplicates st2-rbac-backend | grep -F st2-rbac-backend-${VERSION} | sort --version-sort | tail -n 1)
       if [ -z "$ST2_RBAC_BACKEND_VER" ]; then
         echo "Could not find requested version of st2-rbac-backend!!!"
-        sudo repoquery --nvr --show-duplicates st2-rbac-backend
+        sudo repoquery -y --nvr --show-duplicates st2-rbac-backend
         exit 3
       fi
     fi
 
-    local BWCUI_VER=$(repoquery --nvr --show-duplicates bwc-ui | grep -F bwc-ui-${VERSION} | sort --version-sort | tail -n 1)
+    local BWCUI_VER=$(repoquery -y --nvr --show-duplicates bwc-ui | grep -F bwc-ui-${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$BWCUI_VER" ]; then
       echo "Could not find requested version of bwc-ui!!!"
-      sudo repoquery --nvr --show-duplicates bwc-ui
+      sudo repoquery -y --nvr --show-duplicates bwc-ui
       exit 3
     fi
 
