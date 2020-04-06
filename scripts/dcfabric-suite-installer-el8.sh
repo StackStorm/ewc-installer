@@ -132,10 +132,10 @@ setup_package_cloud_repo() {
 get_full_pkg_versions() {
   if [ "$VERSION" != '' ];
   then
-    local IPF_VER=$(repoquery --nvr --show-duplicates ${SUITE} | grep ${VERSION} | sort --version-sort | tail -n 1)
+    local IPF_VER=$(repoquery -y --nvr --show-duplicates ${SUITE} | grep ${VERSION} | sort --version-sort | tail -n 1)
     if [ -z "$IPF_VER" ]; then
       echo "Could not find requested version of dcfabric-suite!!!"
-      sudo repoquery --nvr --show-duplicates ${SUITE}
+      sudo repoquery -y --nvr --show-duplicates ${SUITE}
       exit 3
     fi
 
