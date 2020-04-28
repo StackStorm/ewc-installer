@@ -208,7 +208,7 @@ else
 fi
 
 
-if ${PKG_TYPE}_is_installed st2 st2mistral; then
+if ${PKG_TYPE}_is_installed st2; then
     echo 'StackStorm Community version is already installed.'
     echo 'Proceeding with Enterprise install ...'
 elif ! curl --output /dev/null --silent --fail ${ST2_COMMUNITY_INSTALLER}; then
